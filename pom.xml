@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>hu.icellmobilsoft.pom</groupId>
+		<artifactId>parent-pom</artifactId>
+		<version>1.1.0</version>
+	</parent>
+
+	<groupId>hu.icellmobilsoft.wdc</groupId>
+	<artifactId>wdc</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+ 		<java.version>1.8</java.version>
+		<project.scm.id>icell-github-server</project.scm.id>
+		<nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+	</properties>
+
+	<scm>
+		<connection>scm:git:git@github.com:i-Cell-Mobilsoft-Open-Source/wdc-backend.git</connection>
+		<developerConnection>scm:git:git@github.com:i-Cell-Mobilsoft-Open-Source/wdc-backend.git</developerConnection>
+ 		<url>https://github.com/i-Cell-Mobilsoft-Open-Source/wdc-backend.git</url>
+		<tag>HEAD</tag>
+	</scm>
+	<name>icellmobilsoft workday calendar</name>
+	<description>Workday calendar for i-Cell Mobilsoft Zrt. projects</description>
+	<url>https://github.com/i-Cell-Mobilsoft-Open-Source/wdc-backend</url>
+
+	<organization>
+		<name>i-Cell Mobilsoft Zrt.</name>
+		<url>https://icellmobilsoft.hu</url>
+	</organization>
+	<inceptionYear>2020</inceptionYear>
+	<issueManagement>
+		<system>github issues</system>
+		<url>https://github.com/i-Cell-Mobilsoft-Open-Source/wdc-backend/issues</url>
+	</issueManagement>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<id>icellmobilsoft.hu</id>
+			<name>icellmobilsoft.hu</name>
+			<organization>i-Cell Mobilsoft Zrt.</organization>
+			<organizationUrl>https://www.icellmobilsoft.hu</organizationUrl>
+		</developer>
+	</developers>
+
+	<modules>
+		<module>wdc-calculator-core</module>
+	</modules>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.3</version>
+					<configuration>
+						<scmCommentPrefix>maven release:</scmCommentPrefix>
+						<useReleaseProfile>true</useReleaseProfile>
+ 						<releaseProfiles>release</releaseProfiles>
+					</configuration>
+				</plugin>
+				 <plugin>
+					 <groupId>org.codehaus.mojo</groupId>
+					 <artifactId>license-maven-plugin</artifactId>
+					 <version>1.19</version>
+					 <executions>
+						 <execution>
+							 <goals>
+								 <goal>update-file-header</goal>
+							 </goals>
+							 <phase>process-sources</phase>
+						</execution>
+					</executions>
+					<configuration>
+						<verbose>false</verbose>
+						<addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+						<licenseName>apache_v2</licenseName>
+					</configuration>
+				</plugin>
+				<plugin>
+				    <groupId>org.apache.maven.plugins</groupId>
+				    <artifactId>maven-javadoc-plugin</artifactId>
+				    <version>2.10.4</version>
+				    <configuration>
+				        <encoding>${project.build.sourceEncoding}</encoding>
+				        <failOnError>false</failOnError>
+				    </configuration>
+				    <executions>
+				        <execution>
+				            <id>attach-javadocs</id>
+				            <goals>
+				                <goal>jar</goal>
+				            </goals>
+				        </execution>
+				    </executions>
+				</plugin>
+				<plugin>
+				    <groupId>org.apache.maven.plugins</groupId>
+				    <artifactId>maven-source-plugin</artifactId>
+				    <version>3.0.1</version>
+				    <executions>
+				        <execution>
+				            <id>attach-sources</id>
+				            <goals>
+				                <goal>jar-no-fork</goal>
+				            </goals>
+				        </execution>
+				    </executions>
+				</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.1.1</version>
+					<configuration>
+						<archive>
+							<manifest>
+								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+								<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+							</manifest>
+							<manifestEntries>
+								<create-date>${maven.build.timestamp}</create-date>
+							</manifestEntries>
+						</archive>
+					</configuration>
+				</plugin>
+				
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+		        	<groupId>org.apache.maven.plugins</groupId>
+		        	<artifactId>maven-javadoc-plugin</artifactId>
+		    	</plugin>
+		    	<plugin>
+		        	<groupId>org.apache.maven.plugins</groupId>
+		        	<artifactId>maven-source-plugin</artifactId>
+		    	</plugin>
+		</plugins>
+	</build>
+
+	<distributionManagement>
+		<snapshotRepository>
+		    <id>ossrh</id>
+		    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+		    <id>ossrh</id>
+		    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+	<profiles>
+		<profile>
+		    <id>wdc-backend-release</id>
+
+			<properties>
+				<project.scm.id>icell-github-server</project.scm.id>
+				<developerConnection>scm:git:git@github.com:i-Cell-Mobilsoft-Open-Source/wdc-backend.git</developerConnection>
+
+				<nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+			</properties>
+
+			<distributionManagement>
+				<snapshotRepository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+				</snapshotRepository>
+				<repository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
+
+		    <build>
+		        <plugins>
+		            <plugin>
+		                <groupId>org.apache.maven.plugins</groupId>
+		                <artifactId>maven-gpg-plugin</artifactId>
+		                <version>1.6</version>
+		                <executions>
+		                    <execution>
+		                        <id>sign-artifacts</id>
+		                        <phase>verify</phase>
+		                        <goals>
+		                            <goal>sign</goal>
+		                        </goals>
+		                    </execution>
+		                </executions>
+		                <configuration>
+		                    <gpgArguments>
+		                        <arg>--pinentry-mode</arg>
+		                        <arg>loopback</arg>
+		                    </gpgArguments>
+		                </configuration>
+		            </plugin>
+		            <plugin>
+		                <groupId>org.sonatype.plugins</groupId>
+		                <artifactId>nexus-staging-maven-plugin</artifactId>
+		                <version>${nexus-staging-maven-plugin.version}</version>
+		                <extensions>true</extensions>
+		                <configuration>
+		                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+		                    <serverId>ossrh</serverId>
+		                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+		                    <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+		                </configuration>
+		            </plugin>
+		        </plugins>
+		    </build>
+		</profile>
+	</profiles>
+
+</project>

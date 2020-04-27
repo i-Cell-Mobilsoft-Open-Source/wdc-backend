@@ -1,0 +1,14 @@
+.idea
+*.iml
+.settings/
+.metadata
+.project
+.classpath
+target/
+bin/
+log/
+project-ex.yml
+*.log
+test-output/
+*.thorntail-runner-cache
+.DS_Store

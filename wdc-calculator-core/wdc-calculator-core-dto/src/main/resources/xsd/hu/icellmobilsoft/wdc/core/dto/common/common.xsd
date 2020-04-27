@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://common.dto.core.wdc.icellmobilsoft.hu/common"
+    targetNamespace="http://common.dto.core.wdc.icellmobilsoft.hu/common"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+	<!-- 	SIMPLE TYPES	-->
+	<xsd:simpleType name="DayType">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="hu">Nap típus</xsd:documentation>
+			<xsd:documentation xml:lang="en">Day type</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:date">
+			<xsd:pattern value="\d{4}-\d{2}-\d{2}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

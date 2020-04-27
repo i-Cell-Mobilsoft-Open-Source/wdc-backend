@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://super.dto.core.wdc.icellmobilsoft.hu/super"
+	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+	targetNamespace="http://super.dto.core.wdc.icellmobilsoft.hu/super"
+	elementFormDefault="qualified" attributeFormDefault="unqualified"
+	jaxb:version="2.0" jaxb:extensionBindingPrefixes="xjc">
+
+	<xsd:import
+		namespace="http://common.dto.core.wdc.icellmobilsoft.hu/common"
+		schemaLocation="common/common.xsd" />
+
+	<xsd:import
+		namespace="http://datafile.dto.core.wdc.icellmobilsoft.hu/datafile"
+		schemaLocation="datafile/workdayData.xsd" />
+
+</xsd:schema>
