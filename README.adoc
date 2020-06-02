@@ -1,0 +1,193 @@
+:toc: left
+:toclevels: 3
+:sectnums:
+
+= Workday Calendar
+
+:leveloffset: 1
+
+= Overview
+
+Workday Calendar is a customizable module for workday calculations using in-memory data.
+After initialization, the module provides methods for querying the n-th workday before or after a given start date and querying a list of workdays between two dates.
+
+:leveloffset: 1
+
+= Installation
+
+Min.
+JDK version: 1.8
+
+This project is available in maven central as:
+
+    <dependency>
+        <groupId>hu.icellmobilsoft.wdc</groupId>
+        <artifactId>wdc-calculator-core-action</artifactId>
+        <version>1.1.0</version>
+    </dependency>
+
+:leveloffset: 1
+
+= Initialization, configurations
+
+Workday Calendar uses an in-memory cache to store the necessary calendar data.
+The cache initializes as follows:
+
+. After launching the application, the cache gets initialized with data of three years:
+the actual year, last year and next year.
+This step uses in-built Java functions to determine whether a given date is a workday or weekend day.
+
+. After the first step, the module uses Microprofile Config to obtain the following three environmental variables:
+Data file folder, Include Days and Exclude Days.
+
+. Then, files under Data File Folder variable get processed.
+See <<Data File Folder>>
+
+. Next, dates given in Include Days variable get processed.
+See <<Include Days>>
+
+. Finally, dates given in Exclude Days variable get processed.
+See <<Exclude Days>>
+
+
+:leveloffset: 2
+
+= Data File Folder
+
+The data file folder config key is "wdc.config.input.datafolder".
+This variable determines the path for input files.
+The purpose of these files is to add holidays and working weekends to the cache.
+
+Files are expected to be in .xml format and contain dates and workday flags (example: <<examples/datafile.xml, datafile.xml>>).
+Every file is validated against
+<<wdc-calculator-core/wdc-calculator-core-dto/src/main/resources/xsd/hu/icellmobilsoft/wdc/core/dto/datafile/workdayData.xsd, workdayData.xsd>>.
+For every date entry in a file, the corresponding workday flag gets overwritten in the cache.
+
+If a given date is not present in the cache yet, its year gets initialized as in the first step of the cache initialization process.
+
+:leveloffset: 2
+
+= Include Days
+
+The include days config key is "wdc.config.input.include".
+This variable should contain dates separated with semicolons (example: 2019-12-07;2019-12-14).
+These determine workday dates, that should overwrite previous values.
+
+If a given date is not present in the cache yet, its year gets initialized as in the first step of the cache initialization process.
+
+:leveloffset: 2
+
+= Exclude Days
+
+The exclude days config key is "wdc.config.input.exclude".
+This variable should contain dates separated with semicolons (example: 2019-12-07;2019-12-14).
+These determine non-workday dates, that should overwrite previous values.
+
+If a given date is not present in the cache yet, its year gets initialized as in the first step of the cache initialization process.
+
+:leveloffset: 1
+
+= Usage
+
+The workday calculation methods are accessible through CalculatorCoreAction class.
+The available methods are explained below.
+
+:leveloffset: 2
+
+= calculateWorkday() method
+
+The calculateWorkday() method is used for querying the n-th workday before or after a given date.
+
+Input:
+
+* LocalDate startDate: must be present in the cache
+
+* int numberOfWorkdays: positive or negative integer, can't be zero
+
+Output:
+
+* LocalDate: startDate + numberOfWorkdays
+
+Exceptions:
+
+* BusinessException on invalid input parameters
+
+Example:
+
+  Given we have in cache:
+  (2020, 5, 15) - workday
+  (2020, 5, 16) - not workday
+  (2020, 5, 17) - not workday
+  (2020, 5, 18) - workday
+  (2020, 5, 19) - workday
+  (2020, 5, 20) - workday
+  Then:
+  calculateWorkday(LocalDate.of(2020, 5, 15), 3) = (2020, 5, 20)
+
+:leveloffset: 2
+
+= calculateWorkdayList() method
+
+The calculateWorkdayList() method is used for querying a list of workdays between two dates.
+
+Input:
+
+* LocalDate startDate: must be present in the cache
+
+* LocalDate endDate: must be present in the cache, can't be earlier than startDate
+
+Output:
+
+* List<LocalDate>: workday dates between startDate and endDate (both inclusive)
+
+Exceptions:
+
+* BusinessException on invalid input parameters
+
+Example:
+
+  Given we have in cache:
+  (2020, 5, 9) - not workday
+  (2020, 5, 10) - not workday
+  (2020, 5, 11) - workday
+  (2020, 5, 12) - workday
+  (2020, 5, 13) - workday
+  (2020, 5, 14) - workday
+  (2020, 5, 15) - workday
+  Then:
+  calculateWorkdayList(LocalDate.of(2020, 5, 9), LocalDate.of(2020, 5, 15)) = [
+  (2020, 5, 11), (2020, 5, 12), (2020, 5, 13), (2020, 5, 14), (2020, 5, 15)]
+
+:leveloffset: 1
+
+= Implementation
+
+A simple CDI based implementation of the Workday Calendar module would look like this:
+
+.CalculatorExample.java
+[source,java]
+----
+package somepackage;
+
+import java.time.LocalDate;
+import javax.inject.Inject;
+import hu.icellmobilsoft.wdc.calculator.core.action.CalculatorCoreAction;
+
+public class CalculatorExample {
+
+    @Inject
+    private CalculatorCoreAction calculatorCoreAction;
+
+    public void callMethods() {
+        private LocalDate startDate = LocalDate.of(2020, 5, 9);
+        private LocalDate endDate = LocalDate.of(2020, 5, 15);
+        private int days = 3;
+        try {
+            LocalDate workday = calculatorCoreAction.calculateWorkday(startDate, numberOfWorkdays);
+            List<Workday> workdayList = calculatorCoreAction.calculateWorkdayList(startDate, endDate);
+        } catch (BusinessException e) {
+            doSomething();
+        }
+    }
+}
+----
