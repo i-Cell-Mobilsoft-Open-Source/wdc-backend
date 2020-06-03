@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+            xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:annox="http://annox.dev.java.net"
+            xmlns="http://datafile.dto.core.wdc.icellmobilsoft.hu/datafile"
+            xmlns:common="http://common.dto.core.wdc.icellmobilsoft.hu/common"
+            targetNamespace="http://datafile.dto.core.wdc.icellmobilsoft.hu/datafile"
+            elementFormDefault="qualified" attributeFormDefault="unqualified"
+            jaxb:version="2.0" jaxb:extensionBindingPrefixes="xjc annox">
+
+    <xsd:import namespace="http://common.dto.core.wdc.icellmobilsoft.hu/common" schemaLocation="../common/common.xsd"></xsd:import>
+    <!-- SIMPLE TYPES -->
+    <!-- GROUPS -->
+    <!-- COMPLEX TYPES -->
+    <xsd:complexType name="WorkdayDataListType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="hu">Listában munkanapok jelzésére szolgáló komplex adattípus.</xsd:documentation>
+            <xsd:documentation xml:lang="en">Complex type for indicating workdays in list.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="workdayData" type="WorkdayDataType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="WorkdayDataType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="hu">Munkanap jelzésére szolgáló komplex adattípus.</xsd:documentation>
+            <xsd:documentation xml:lang="en">Complex type for indicating workday.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="date" type="common:DayType">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="hu">Naptári nap.</xsd:documentation>
+                    <xsd:documentation xml:lang="en">Calendar day.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="workday" type="xsd:boolean">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="hu">Munkanap jelzésére.</xsd:documentation>
+                    <xsd:documentation xml:lang="en">Indicates day for workday.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <!-- REQUEST/RESPONSE ELEMENTS -->
+    <xsd:element name="WorkdayData">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="hu">XML root element, munkanapok jelzésére szolgáló típus.</xsd:documentation>
+            <xsd:documentation xml:lang="en">XML root element, type for indicate workdays.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="WorkdayDataListType"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
+
