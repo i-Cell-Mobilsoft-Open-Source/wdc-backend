@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -12,7 +10,7 @@
 
 	<groupId>hu.icellmobilsoft.wdc</groupId>
 	<artifactId>wdc</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
+	<version>1.1.0</version>
 	<packaging>pom</packaging>
 
 	<properties>
@@ -23,7 +21,7 @@
 		<connection>scm:git:git@github.com:i-Cell-Mobilsoft-Open-Source/wdc-backend.git</connection>
 		<developerConnection>scm:git:git@github.com:i-Cell-Mobilsoft-Open-Source/wdc-backend.git</developerConnection>
 		<url>https://github.com/i-Cell-Mobilsoft-Open-Source/wdc-backend.git</url>
-		<tag>HEAD</tag>
+		<tag>wdc-1.1.0</tag>
 	</scm>
 	<name>icellmobilsoft workday calendar</name>
 	<description>Workday calendar for i-Cell Mobilsoft Zrt. projects</description>
