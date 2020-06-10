@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>hu.icellmobilsoft.pom</groupId>
 		<artifactId>parent-oss-pom</artifactId>
@@ -22,7 +22,7 @@
 	<scm>
 		<connection>scm:git:git@github.com:i-Cell-Mobilsoft-Open-Source/wdc-backend.git</connection>
 		<developerConnection>scm:git:git@github.com:i-Cell-Mobilsoft-Open-Source/wdc-backend.git</developerConnection>
- 		<url>https://github.com/i-Cell-Mobilsoft-Open-Source/wdc-backend.git</url>
+		<url>https://github.com/i-Cell-Mobilsoft-Open-Source/wdc-backend.git</url>
 		<tag>HEAD</tag>
 	</scm>
 	<name>icellmobilsoft workday calendar</name>
@@ -43,44 +43,127 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<artifactId>maven-release-plugin</artifactId>
-					<version>2.5.3</version>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.1.1</version>
 					<configuration>
-						<scmCommentPrefix>maven release:</scmCommentPrefix>
-						<useReleaseProfile>true</useReleaseProfile>
- 						<releaseProfiles>release</releaseProfiles>
+						<archive>
+							<manifestEntries>
+								<git-commit>${buildNumber}</git-commit>
+								<git-branch>${scmBranch}</git-branch>
+							</manifestEntries>
+						</archive>
 					</configuration>
 				</plugin>
-				 <plugin>
-					 <groupId>org.codehaus.mojo</groupId>
-					 <artifactId>license-maven-plugin</artifactId>
-					 <version>1.19</version>
-					 <executions>
-						 <execution>
-							 <goals>
-								 <goal>update-file-header</goal>
-							 </goals>
-							 <phase>process-sources</phase>
-						</execution>
-					</executions>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>3.2.2</version>
 					<configuration>
-						<verbose>false</verbose>
-						<addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
-						<licenseName>apache_v2</licenseName>
+						<archive>
+							<manifestEntries>
+								<git-commit>${buildNumber}</git-commit>
+								<git-branch>${scmBranch}</git-branch>
+							</manifestEntries>
+						</archive>
 					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<configuration>
+						<releaseProfiles>release</releaseProfiles>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.asciidoctor</groupId>
+					<artifactId>asciidoctor-maven-plugin</artifactId>
+					<version>1.6.0</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.asciidoctor</groupId>
+							<artifactId>asciidoctorj-diagram</artifactId>
+							<version>2.0.1</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
 			<plugin>
-		        	<groupId>org.apache.maven.plugins</groupId>
-		        	<artifactId>maven-javadoc-plugin</artifactId>
-		    	</plugin>
-		    	<plugin>
-		        	<groupId>org.apache.maven.plugins</groupId>
-		        	<artifactId>maven-source-plugin</artifactId>
-		    	</plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*.java</include>
+					</includes>
+					<ignoreNoFileToScan>true</ignoreNoFileToScan>
+					<projectName>WDC</projectName>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>${nexus-staging-maven-plugin.version}</version>
+						<extensions>true</extensions>
+						<configuration>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<serverId>ossrh</serverId>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+							<keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
