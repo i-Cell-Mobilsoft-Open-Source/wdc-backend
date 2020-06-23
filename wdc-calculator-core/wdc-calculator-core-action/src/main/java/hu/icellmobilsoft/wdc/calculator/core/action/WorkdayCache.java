@@ -55,22 +55,6 @@ public class WorkdayCache {
     }
 
     /**
-     * Puts the given date and workday boolean in the cache. If the given date is not present in the cache, first initializes its year.
-     *
-     * @param date
-     *            LocalDate to put
-     * @param isWorkday
-     *            boolean value, referring to whether the given date is a workday
-     * @deprecated
-     *          As of version 1.2.0.
-     *          Use {@link #put(LocalDate, boolean, HolidayType, LocalDate, String)} instead.
-     */
-    @Deprecated
-    public void put(LocalDate date, boolean isWorkday) {
-        put(date, isWorkday, isWorkday ? null : HolidayType.WEEKEND, null, null);
-    }
-
-    /**
      * Inserts given date, with given descriptor information into the cache.
      * If the given date is not present in the cache, first initializes its year.
      *
