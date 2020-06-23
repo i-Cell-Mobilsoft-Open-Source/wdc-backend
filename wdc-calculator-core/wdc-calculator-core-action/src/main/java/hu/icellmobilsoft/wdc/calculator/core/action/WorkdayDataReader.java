@@ -27,7 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,7 +35,9 @@ import javax.inject.Inject;
 
 import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
 import hu.icellmobilsoft.wdc.calculator.core.action.exception.ReasonCode;
+import hu.icellmobilsoft.wdc.calculator.core.action.helper.HolidayTypeHelper;
 import hu.icellmobilsoft.wdc.calculator.core.config.CalculatorCoreConfig;
+import hu.icellmobilsoft.wdc.core.dto.datafile.datafile.HolidayType;
 import hu.icellmobilsoft.wdc.core.dto.datafile.datafile.WorkdayData;
 import hu.icellmobilsoft.wdc.dto.xsd.tools.MarshallingUtil;
 
@@ -49,6 +50,8 @@ import hu.icellmobilsoft.wdc.dto.xsd.tools.MarshallingUtil;
 public class WorkdayDataReader {
 
     private static final String DATE_DELIMITER = ";";
+
+    public static final String FIELD_DELIMITER = ",";
 
     @Inject
     private CalculatorCoreConfig calculatorCoreConfig;
@@ -78,7 +81,7 @@ public class WorkdayDataReader {
         try (Stream<Path> filePaths = Files.walk(folderPath)) {
             for (Path path : filePaths.filter(p -> !p.toFile().isDirectory()).collect(Collectors.toList())) {
                 WorkdayData workdayData = getWorkdayDataFromFile(path.toFile());
-                workdayData.getWorkdayData().forEach(d -> workdayCache.put(d.getDate(), d.isWorkday()));
+                workdayData.getWorkdayData().forEach(d -> workdayCache.put(d.getDate(), d.isWorkday(), HolidayTypeHelper.toCacheData(d.getHolidayType()), d.getSubstitutedDay(), d.getDescription()));
             }
         } catch (IOException e) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Error accessing data folder at: " + folderPath.toString(), e);
@@ -100,19 +103,33 @@ public class WorkdayDataReader {
 
     private void readIncludeData() throws BusinessException {
         try {
-            Arrays.stream(calculatorCoreConfig.getIncludeDays().split(DATE_DELIMITER)).filter(d -> !d.trim().isEmpty())
-                    .forEach(d -> workdayCache.put(LocalDate.parse(d), true));
-        } catch (DateTimeParseException e) {
+            readData(calculatorCoreConfig.getIncludeDays(), true);
+        } catch (DateTimeParseException | IllegalArgumentException e) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Include data could not be read. " + e.getMessage(), e);
         }
     }
 
     private void readExcludeData() throws BusinessException {
         try {
-            Arrays.stream(calculatorCoreConfig.getExcludeDays().split(DATE_DELIMITER)).filter(d -> !d.trim().isEmpty())
-                    .forEach(d -> workdayCache.put(LocalDate.parse(d), false));
-        } catch (DateTimeParseException e) {
+            readData(calculatorCoreConfig.getExcludeDays(),false);
+        } catch (DateTimeParseException | IllegalArgumentException e) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Exclude data could not be read. " + e.getMessage(), e);
+        }
+    }
+
+    private void readData(String data, boolean isWorkingDay) throws BusinessException {
+        for (String entry : data.split(DATE_DELIMITER)) {
+            if (!entry.trim().isEmpty()) {
+                String[] fields = entry.split(FIELD_DELIMITER);
+                if (fields.length == 1) {
+                    workdayCache.put(LocalDate.parse(fields[0]), isWorkingDay, null, null, null);
+                } else if (fields.length == 4) {
+                    workdayCache.put(LocalDate.parse(fields[0]), isWorkingDay, HolidayTypeHelper.toCacheData(HolidayType.valueOf(fields[1])),
+                            LocalDate.parse(fields[3]), fields[2]);
+                } else {
+                    throw new BusinessException(ReasonCode.INVALID_INPUT, "Invalid format each entry should have exactly 1 or 4 fields");
+                }
+            }
         }
     }
 }
