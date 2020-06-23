@@ -11,6 +11,40 @@
 
     <xsd:import namespace="http://common.dto.core.wdc.icellmobilsoft.hu/common" schemaLocation="../common/common.xsd"></xsd:import>
     <!-- SIMPLE TYPES -->
+    <xsd:simpleType name="HolidayType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="FEASTDAY">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="en">Feast day</xsd:documentation>
+                    <xsd:documentation xml:lang="hu">Ünnepnap</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="WEEKEND">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="en">Weekend</xsd:documentation>
+                    <xsd:documentation xml:lang="hu">Hétvége</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="RESTDAY">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="en">Rest day</xsd:documentation>
+                    <xsd:documentation xml:lang="en">Pihenőnap</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="PLUSWORKINGDAY">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="en">Plus working day</xsd:documentation>
+                    <xsd:documentation xml:lang="hu">Plusz munkanap</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="NATIONALDAY">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="en">National day</xsd:documentation>
+                    <xsd:documentation xml:lang="hu">Nemzeti ünnep</xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
     <!-- GROUPS -->
     <!-- COMPLEX TYPES -->
     <xsd:complexType name="WorkdayDataListType">
@@ -38,6 +72,24 @@
                 <xsd:annotation>
                     <xsd:documentation xml:lang="hu">Munkanap jelzésére.</xsd:documentation>
                     <xsd:documentation xml:lang="en">Indicates day for workday.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="holidayType" type="HolidayType" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="hu">Munka, vagy munkaszüneti nap típusa.</xsd:documentation>
+                    <xsd:documentation xml:lang="en">Type of workday or holiday.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="substitutedDay" type="common:DayType" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="hu">Kiváltott naptári nap.</xsd:documentation>
+                    <xsd:documentation xml:lang="en">Substituted calendar day.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="description" type="xsd:string" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="hu">Leírása a napnak.</xsd:documentation>
+                    <xsd:documentation xml:lang="en">Description of the day.</xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
         </xsd:sequence>
