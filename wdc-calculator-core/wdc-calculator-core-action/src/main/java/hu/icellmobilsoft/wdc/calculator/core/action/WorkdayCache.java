@@ -32,6 +32,8 @@ import java.util.stream.Stream;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import hu.icellmobilsoft.wdc.calculator.core.action.type.HolidayType;
+
 /**
  * Workday Calendar caching class
  *
@@ -40,15 +42,15 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class WorkdayCache {
 
-    private Map<Year, TreeMap<LocalDate, Boolean>> cache = new HashMap<>();
+    private Map<Year, TreeMap<LocalDate, WorkdayCacheData>> cache = new HashMap<>();
 
     /**
      * Returns the cache of workdays
      *
-     * @return Map<Year, TreeMap<LocalDate, Boolean>> Map with initialized years as keys and TreeMaps as values. Every TreeMap has LocalDates as keys
-     *         (every date in the given year) and a boolean value referring to whether the given date is workday or not.
+     * @return Map<Year, TreeMap<LocalDate, WorkdayCacheData>> Map with initialized years as keys and TreeMaps as values. Every TreeMap has LocalDates as keys
+     *         (every date in the given year) and a WorkdayCacheData as value.
      */
-    public Map<Year, TreeMap<LocalDate, Boolean>> getCache() {
+    public Map<Year, TreeMap<LocalDate, WorkdayCacheData>> getCache() {
         return cache;
     }
 
@@ -59,8 +61,31 @@ public class WorkdayCache {
      *            LocalDate to put
      * @param isWorkday
      *            boolean value, referring to whether the given date is a workday
+     * @deprecated
+     *          As of version 1.2.0.
+     *          Use {@link #put(LocalDate, boolean, HolidayType, LocalDate, String)} instead.
      */
+    @Deprecated
     public void put(LocalDate date, boolean isWorkday) {
+        put(date, isWorkday, isWorkday ? null : HolidayType.WEEKEND, null, null);
+    }
+
+    /**
+     * Inserts given date, with given descriptor information into the cache.
+     * If the given date is not present in the cache, first initializes its year.
+     *
+     * @param date
+     *          date to insert
+     * @param isWorkday
+     *          boolean value, referring to whether the given date is a workday
+     * @param holidayType
+     *          type of non-workday date
+     * @param substitutedDay
+     *          workday, non-workday substitution descriptor
+     * @param description
+     *          description of date
+     */
+    public void put(LocalDate date, boolean isWorkday, HolidayType holidayType, LocalDate substitutedDay, String description) {
         if (date == null) {
             return;
         }
@@ -68,12 +93,20 @@ public class WorkdayCache {
         if (!this.getCache().containsKey(year)) {
             this.initYear(year);
         }
-        this.getCache().get(year).put(date, isWorkday);
+
+        WorkdayCacheData workdayCacheData = new WorkdayCacheData();
+        workdayCacheData.setDate(date);
+        workdayCacheData.setWorkday(isWorkday);
+        workdayCacheData.setSubstitutedDay(substitutedDay);
+        workdayCacheData.setDescription(description);
+        workdayCacheData.setHolidayType(holidayType);
+
+        this.getCache().get(year).put(date, workdayCacheData);
     }
 
     /**
      * Initializing cache of given year with weekdays and weekends.
-     * 
+     *
      * @param year
      *            year to init
      */
@@ -85,7 +118,7 @@ public class WorkdayCache {
         final LocalDate end = yearWithNowDate.with(TemporalAdjusters.lastDayOfYear());
         final long days = start.until(end, ChronoUnit.DAYS);
         cache.put(year, Stream.iterate(start, d -> d.plusDays(1)).limit(days + 1)
-                .collect(Collectors.toMap(d -> d, WorkdayCache::isWeekday, (o1, o2) -> o2, TreeMap::new)));
+                .collect(Collectors.toMap(d -> d, WorkdayCache::initDay, (o1, o2) -> o2, TreeMap::new)));
     }
 
     private static boolean isWeekday(LocalDate localDate) {
@@ -93,5 +126,17 @@ public class WorkdayCache {
             return false;
         DayOfWeek dayOfWeek = localDate.getDayOfWeek();
         return !(dayOfWeek.equals(DayOfWeek.SATURDAY) || dayOfWeek.equals(DayOfWeek.SUNDAY));
+    }
+
+    private static WorkdayCacheData initDay(LocalDate date) {
+        if (date == null) {
+            return null;
+        }
+
+        WorkdayCacheData workdayCacheData = new WorkdayCacheData();
+        workdayCacheData.setDate(date);
+        workdayCacheData.setWorkday(isWeekday(date));
+
+        return workdayCacheData;
     }
 }
