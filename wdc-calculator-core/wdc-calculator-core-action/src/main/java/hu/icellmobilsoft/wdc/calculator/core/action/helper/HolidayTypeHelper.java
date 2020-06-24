@@ -21,8 +21,21 @@ package hu.icellmobilsoft.wdc.calculator.core.action.helper;
 
 import hu.icellmobilsoft.wdc.core.dto.datafile.datafile.HolidayType;
 
+/**
+ * Helper for converting HolidayType between dto and WorkDayCacheData.
+ *
+ * @author adam.magyari
+ */
 public class HolidayTypeHelper {
 
+    /**
+     * Converts WorkdayCacheData HolidayType to corresponding dto type.
+     *
+     * @param holidayType
+     *          WorkDayCacheData HolidayType to convert
+     * @return
+     *          Corresponding dto HolidayType
+     */
     public static HolidayType toDto(hu.icellmobilsoft.wdc.calculator.core.action.type.HolidayType holidayType) {
         if (holidayType == null){
             return null;
@@ -43,6 +56,14 @@ public class HolidayTypeHelper {
         }
     }
 
+    /**
+     * Converts dto HolidayType to corresponding WorkdayCacheData HolidayType type.
+     *
+     * @param holidayType
+     *          dto HolidayType to convert
+     * @return
+     *          Corresponding WorkdayCacheData HolidayType
+     */
     public static hu.icellmobilsoft.wdc.calculator.core.action.type.HolidayType toCacheData(HolidayType holidayType) {
         if (holidayType == null) {
             return null;

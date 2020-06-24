@@ -127,7 +127,8 @@ public class WorkdayDataReader {
                     workdayCache.put(LocalDate.parse(fields[0]), isWorkingDay, HolidayTypeHelper.toCacheData(HolidayType.valueOf(fields[1])),
                             LocalDate.parse(fields[3]), fields[2]);
                 } else {
-                    throw new BusinessException(ReasonCode.INVALID_INPUT, "Invalid format each entry should have exactly 1 or 4 fields");
+                    throw new BusinessException(ReasonCode.INVALID_INPUT,
+                            "Invalid format. Each entry should have exactly 1 or 4 fields. Entry {" + entry + "} is invalid.");
                 }
             }
         }
