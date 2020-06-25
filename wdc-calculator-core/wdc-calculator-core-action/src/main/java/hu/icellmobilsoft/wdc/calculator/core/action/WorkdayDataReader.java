@@ -27,11 +27,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
 
 import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
 import hu.icellmobilsoft.wdc.calculator.core.action.exception.ReasonCode;
@@ -104,7 +107,7 @@ public class WorkdayDataReader {
     private void readIncludeData() throws BusinessException {
         try {
             readData(calculatorCoreConfig.getIncludeDays(), true);
-        } catch (DateTimeParseException | IllegalArgumentException e) {
+        } catch (DateTimeParseException | IllegalArgumentException | BusinessException e) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Include data could not be read. " + e.getMessage(), e);
         }
     }
@@ -112,7 +115,7 @@ public class WorkdayDataReader {
     private void readExcludeData() throws BusinessException {
         try {
             readData(calculatorCoreConfig.getExcludeDays(),false);
-        } catch (DateTimeParseException | IllegalArgumentException e) {
+        } catch (DateTimeParseException | IllegalArgumentException | BusinessException e) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Exclude data could not be read. " + e.getMessage(), e);
         }
     }
@@ -121,15 +124,15 @@ public class WorkdayDataReader {
         for (String entry : data.split(DATE_DELIMITER)) {
             if (!entry.trim().isEmpty()) {
                 String[] fields = entry.split(FIELD_DELIMITER);
-                if (fields.length == 1) {
-                    workdayCache.put(LocalDate.parse(fields[0]), isWorkingDay, null, null, null);
-                } else if (fields.length == 4) {
-                    workdayCache.put(LocalDate.parse(fields[0]), isWorkingDay, HolidayTypeHelper.toCacheData(HolidayType.valueOf(fields[1])),
-                            LocalDate.parse(fields[3]), fields[2]);
-                } else {
+                if (fields.length < 1 || fields.length > 4) {
                     throw new BusinessException(ReasonCode.INVALID_INPUT,
-                            "Invalid format. Each entry should have exactly 1 or 4 fields. Entry {" + entry + "} is invalid.");
+                            "Invalid format. Each entry should have between 1 and 4 fields. Entry {" + entry + "} is invalid.");
                 }
+                String[] fieldsFixLength = Arrays.copyOf(fields, 4);
+
+                workdayCache.put(LocalDate.parse(fieldsFixLength[0]), isWorkingDay,
+                        StringUtils.isBlank(fieldsFixLength[1]) ? null : HolidayTypeHelper.toCacheData(HolidayType.valueOf(fieldsFixLength[1])),
+                        StringUtils.isBlank(fieldsFixLength[3]) ? null : LocalDate.parse(fieldsFixLength[3]), fieldsFixLength[2]);
             }
         }
     }

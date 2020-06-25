@@ -15,6 +15,7 @@
 		<version.junit5>5.5.2</version.junit5>
 		<version.mockito>3.1.0</version.mockito>
 		<version.assertj>3.13.2</version.assertj>
+		<version.commons.lang>3.10</version.commons.lang>
 	</properties>
 
 	<dependencies>
@@ -40,6 +41,12 @@
 					<artifactId>org.osgi.annotation.versioning</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${version.commons.lang}</version>
 		</dependency>
 
 		<!-- TEST -->
