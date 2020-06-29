@@ -25,7 +25,9 @@ import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,6 +45,8 @@ import hu.icellmobilsoft.wdc.calculator.core.action.type.HolidayType;
 public class WorkdayCache {
 
     private Map<Year, TreeMap<LocalDate, WorkdayCacheData>> cache = new HashMap<>();
+
+    private Set<Year> guaranteedYears = new HashSet<>();
 
     /**
      * Returns the cache of workdays
@@ -103,6 +107,30 @@ public class WorkdayCache {
         final long days = start.until(end, ChronoUnit.DAYS);
         cache.put(year, Stream.iterate(start, d -> d.plusDays(1)).limit(days + 1)
                 .collect(Collectors.toMap(d -> d, WorkdayCache::initDay, (o1, o2) -> o2, TreeMap::new)));
+    }
+
+    /**
+     * Returns whether the given year is guaranteed.
+     *
+     * @param year
+     *            year whose presence in the guaranteed set is to be tested
+     *
+     * @return boolean
+     */
+    public boolean isGuaranteedYear(Year year) {
+        return guaranteedYears.contains(year);
+    }
+
+    /**
+     * Adds given year into the set of guaranteed years.
+     *
+     * @param year
+     *            year to be added to the guaranteed set
+     */
+    public void addToGuaranteedYears(Year year) {
+        if (year != null) {
+            guaranteedYears.add(year);
+        }
     }
 
     private static boolean isWeekday(LocalDate localDate) {
