@@ -125,7 +125,7 @@ class WorkdayCacheTest {
         // When
         underTest.initYear(year);
         // Then
-        assertTrue(underTest.getCache().get(year).get(workday));
+        assertTrue(underTest.getCache().get(year).get(workday).isWorkday());
     }
 
     @Test
@@ -137,7 +137,7 @@ class WorkdayCacheTest {
         // When
         underTest.initYear(year);
         // Then
-        assertFalse(underTest.getCache().get(year).get(weekendDay));
+        assertFalse(underTest.getCache().get(year).get(weekendDay).isWorkday());
     }
 
     @Test
@@ -148,9 +148,9 @@ class WorkdayCacheTest {
         LocalDate weekendDay = LocalDate.of(2019, 12, 21);
         underTest.initYear(year);
         // When
-        underTest.put(weekendDay, true);
+        underTest.put(weekendDay, true, null, null, null);
         // Then
-        assertTrue(underTest.getCache().get(year).get(weekendDay));
+        assertTrue(underTest.getCache().get(year).get(weekendDay).isWorkday());
     }
 
     @Test
@@ -160,9 +160,9 @@ class WorkdayCacheTest {
         Year year = Year.of(2019);
         LocalDate weekendDay = LocalDate.of(2019, 12, 21);
         // When
-        underTest.put(weekendDay, true);
+        underTest.put(weekendDay, true, null, null, null);
         // Then
-        assertTrue(underTest.getCache().get(year).get(weekendDay));
+        assertTrue(underTest.getCache().get(year).get(weekendDay).isWorkday());
         assertEquals(365, underTest.getCache().get(year).size());
     }
 
@@ -171,7 +171,7 @@ class WorkdayCacheTest {
     void testPutDateIsNull() {
         // Given
         // When
-        underTest.put(null, false);
+        underTest.put(null, false, null, null, null);
         // Then
         assertTrue(underTest.getCache().isEmpty());
     }

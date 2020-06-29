@@ -60,13 +60,13 @@ public class CalculatorCoreAction {
     public LocalDate calculateWorkday(LocalDate startDate, int numberOfWorkDays) throws BusinessException {
         validateCalculateWorkdayParams(startDate, numberOfWorkDays);
 
-        NavigableMap<LocalDate, Boolean> years = calculateYears(startDate, numberOfWorkDays);
+        NavigableMap<LocalDate, WorkdayCacheData> years = calculateYears(startDate, numberOfWorkDays);
 
-        Predicate<Map.Entry<LocalDate, Boolean>> isWorkDay = Map.Entry::getValue;
-        Predicate<Map.Entry<LocalDate, Boolean>> isInDateRange = x -> numberOfWorkDays > 0 ? x.getKey().isAfter(startDate)
+        Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isWorkDay = x -> x.getValue().isWorkday();
+        Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isInDateRange = x -> numberOfWorkDays > 0 ? x.getKey().isAfter(startDate)
                 : x.getKey().isBefore(startDate);
 
-        List<Map.Entry<LocalDate, Boolean>> workdaysRelatedToStartDate = years.entrySet().stream().filter(isWorkDay.and(isInDateRange))
+        List<Map.Entry<LocalDate, WorkdayCacheData>> workdaysRelatedToStartDate = years.entrySet().stream().filter(isWorkDay.and(isInDateRange))
                 .collect(Collectors.toList());
 
         return createWorkDayResult(numberOfWorkDays, workdaysRelatedToStartDate);
@@ -86,17 +86,17 @@ public class CalculatorCoreAction {
     public List<LocalDate> calculateWorkdayList(LocalDate startDate, LocalDate endDate) throws BusinessException {
         validateCalculateWorkdayListParams(startDate, endDate);
 
-        NavigableMap<LocalDate, Boolean> years = calculateYears(startDate, 1);
+        NavigableMap<LocalDate, WorkdayCacheData> years = calculateYears(startDate, 1);
 
-        Predicate<Map.Entry<LocalDate, Boolean>> isWorkDay = Map.Entry::getValue;
-        Predicate<Map.Entry<LocalDate, Boolean>> isInDateRange = x -> x.getKey().isAfter(startDate.minusDays(1))
+        Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isWorkDay = x -> x.getValue().isWorkday();
+        Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isInDateRange = x -> x.getKey().isAfter(startDate.minusDays(1))
                 && x.getKey().isBefore(endDate.plusDays(1));
 
         return years.entrySet().stream().filter(isWorkDay.and(isInDateRange)).map(Map.Entry::getKey).collect(Collectors.toList());
     }
 
-    private NavigableMap<LocalDate, Boolean> calculateYears(LocalDate startDate, int numberOfWorkDays) {
-        NavigableMap<LocalDate, Boolean> result;
+    private NavigableMap<LocalDate, WorkdayCacheData> calculateYears(LocalDate startDate, int numberOfWorkDays) {
+        NavigableMap<LocalDate, WorkdayCacheData> result;
         if (numberOfWorkDays > 0) {
             result = filterYears(entry -> entry.getKey().getValue() >= startDate.getYear());
         } else {
@@ -105,15 +105,15 @@ public class CalculatorCoreAction {
         return result;
     }
 
-    private NavigableMap<LocalDate, Boolean> filterYears(Predicate<Map.Entry<Year, TreeMap<LocalDate, Boolean>>> isInDateRange) {
-        NavigableMap<LocalDate, Boolean> years = new TreeMap<>();
+    private NavigableMap<LocalDate, WorkdayCacheData> filterYears(Predicate<Map.Entry<Year, TreeMap<LocalDate, WorkdayCacheData>>> isInDateRange) {
+        NavigableMap<LocalDate, WorkdayCacheData> years = new TreeMap<>();
         workdayCache.getCache().entrySet().stream()
                 .filter(isInDateRange)
                 .forEach(entry -> years.putAll(entry.getValue()));
         return years;
     }
 
-    private LocalDate createWorkDayResult(int numberOfWorkDays, List<Map.Entry<LocalDate, Boolean>> workdaysRelatedToStartDate) throws BusinessException {
+    private LocalDate createWorkDayResult(int numberOfWorkDays, List<Map.Entry<LocalDate, WorkdayCacheData>> workdaysRelatedToStartDate) throws BusinessException {
         if (workdaysRelatedToStartDate.size() < numberOfWorkDays - 1) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "The number of working days is out of date range!");
         }

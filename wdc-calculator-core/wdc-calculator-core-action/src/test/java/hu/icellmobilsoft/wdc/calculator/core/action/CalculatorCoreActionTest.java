@@ -51,7 +51,7 @@ import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
 @DisplayName("Testing CalculatorCoreAction class")
 class CalculatorCoreActionTest {
 
-    private Map<Year, TreeMap<LocalDate, Boolean>> cache = new HashMap<>();
+    private Map<Year, TreeMap<LocalDate, WorkdayCacheData>> cache = new HashMap<>();
 
     @Mock
     private WorkdayCache workdayCache;
@@ -61,7 +61,12 @@ class CalculatorCoreActionTest {
 
     void initCache2020May() {
         cache.put(Year.of(2020), Stream.iterate(LocalDate.of(2020, 5, 1), d -> d.plusDays(1)).limit(31).collect(Collectors.toMap(d -> d,
-                d -> !d.getDayOfWeek().equals(DayOfWeek.SATURDAY) && !d.getDayOfWeek().equals(DayOfWeek.SUNDAY), (o1, o2) -> o2, TreeMap::new)));
+                d -> {
+                    WorkdayCacheData data = new WorkdayCacheData();
+                    data.setDate(d);
+                    data.setWorkday(!d.getDayOfWeek().equals(DayOfWeek.SATURDAY) && !d.getDayOfWeek().equals(DayOfWeek.SUNDAY));
+                    return data;
+                }, (o1, o2) -> o2, TreeMap::new)));
         when(workdayCache.getCache()).thenReturn(cache);
     }
 
