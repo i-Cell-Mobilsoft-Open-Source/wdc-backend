@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.Year;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -84,7 +85,11 @@ public class WorkdayDataReader {
         try (Stream<Path> filePaths = Files.walk(folderPath)) {
             for (Path path : filePaths.filter(p -> !p.toFile().isDirectory()).collect(Collectors.toList())) {
                 WorkdayData workdayData = getWorkdayDataFromFile(path.toFile());
-                workdayData.getWorkdayData().forEach(d -> workdayCache.put(d.getDate(), d.isWorkday(), HolidayTypeHelper.toCacheData(d.getHolidayType()), d.getSubstitutedDay(), d.getDescription()));
+                workdayData.getWorkdayData().forEach(d -> {
+                    workdayCache.put(d.getDate(), d.isWorkday(), HolidayTypeHelper.toCacheData(d.getHolidayType()), d.getSubstitutedDay(),
+                            d.getDescription());
+                    workdayCache.addToGuaranteedYears(Year.of(d.getDate().getYear()));
+                });
             }
         } catch (IOException e) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Error accessing data folder at: " + folderPath.toString(), e);
@@ -114,7 +119,7 @@ public class WorkdayDataReader {
 
     private void readExcludeData() throws BusinessException {
         try {
-            readData(calculatorCoreConfig.getExcludeDays(),false);
+            readData(calculatorCoreConfig.getExcludeDays(), false);
         } catch (DateTimeParseException | IllegalArgumentException | BusinessException e) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Exclude data could not be read. " + e.getMessage(), e);
         }

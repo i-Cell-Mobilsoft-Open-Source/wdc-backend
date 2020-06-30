@@ -175,4 +175,39 @@ class WorkdayCacheTest {
         // Then
         assertTrue(underTest.getCache().isEmpty());
     }
+
+    @Test
+    @DisplayName("Testing isGuaranteedYear() if year is guaranteed")
+    void testIsGuaranteedYearIfTrue() {
+        // Given
+        Year year = Year.of(2020);
+        underTest.addToGuaranteedYears(year);
+        // When
+        boolean actual = underTest.isGuaranteedYear(year);
+        // Then
+        assertTrue(actual);
+    }
+
+    @Test
+    @DisplayName("Testing isGuaranteedYear() if year is not guaranteed")
+    void testIsGuaranteedYearIfFalse() {
+        // Given
+        Year year = Year.of(2020);
+        // When
+        boolean actual = underTest.isGuaranteedYear(year);
+        // Then
+        assertFalse(actual);
+    }
+
+    @Test
+    @DisplayName("Testing isGuaranteedYear() if year is null")
+    void testIsGuaranteedYearIfNull() {
+        // Given
+        Year year = null;
+        underTest.addToGuaranteedYears(year);
+        // When
+        boolean actual = underTest.isGuaranteedYear(year);
+        // Then
+        assertFalse(actual);
+    }
 }
