@@ -57,9 +57,9 @@ public class CalculatorCoreAction {
      * Calculate workday (with startDate and numberOfWorkdays)
      *
      * @param startDate
-     *            The from date.\n Valid dates in: current year, last year, next year
-     * @param numberOfWorkDays
-     *            The number of workdays.\n Can't be 0
+     *            From date.\n Valid dates between years 1 and 2100.
+     * @param numberOfWorkdays
+     *            Number of workdays.\n Cannot be 0, may be negative.
      * @return The calculated workday
      * @throws BusinessException
      *             Throws on invalid input parameters
@@ -67,16 +67,33 @@ public class CalculatorCoreAction {
     public LocalDate calculateWorkday(LocalDate startDate, int numberOfWorkdays) throws BusinessException {
         validateCalculateWorkdayParams(startDate, numberOfWorkdays);
 
-        NavigableMap<LocalDate, WorkdayCacheData> years = calculateYears(startDate, numberOfWorkDays);
+        if (numberOfWorkdays > 0) {
+            return calculateWorkday(startDate, numberOfWorkdays, true);
+        } else {
+            return calculateWorkday(startDate, Math.abs(numberOfWorkdays), false);
+        }
+    }
 
-        Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isWorkDay = x -> x.getValue().isWorkday();
-        Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isInDateRange = x -> numberOfWorkDays > 0 ? x.getKey().isAfter(startDate)
-                : x.getKey().isBefore(startDate);
+    /**
+     * Returns whether the result of the given calculateWorkday method is guaranteed.
+     *
+     * @param startDate
+     *            From date.
+     * @param numberOfWorkdays
+     *            Number of workdays. May be negative.
+     * @return boolean
+     */
+    public boolean isGuaranteedResultOfCalculateWorkday(LocalDate startDate, int numberOfWorkdays) {
+        boolean guaranteed;
 
-        List<Map.Entry<LocalDate, WorkdayCacheData>> workdaysRelatedToStartDate = years.entrySet().stream().filter(isWorkDay.and(isInDateRange))
-                .collect(Collectors.toList());
-
-        return createWorkDayResult(numberOfWorkDays, workdaysRelatedToStartDate);
+        if (numberOfWorkdays > 0) {
+            guaranteed = isGuaranteedResultOfCalculateWorkday(startDate, numberOfWorkdays, true);
+        } else if (numberOfWorkdays < 0) {
+            guaranteed = isGuaranteedResultOfCalculateWorkday(startDate, Math.abs(numberOfWorkdays), false);
+        } else {
+            guaranteed = false;
+        }
+        return guaranteed;
     }
 
     /**
@@ -99,6 +116,78 @@ public class CalculatorCoreAction {
                 && x.getKey().isBefore(endDate.plusDays(1));
 
         return years.entrySet().stream().filter(isWorkday.and(isInDateRange)).map(Map.Entry::getKey).collect(Collectors.toList());
+    }
+
+    private LocalDate calculateWorkday(LocalDate startDate, int numberOfWorkdays, boolean ascending) throws BusinessException {
+        Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isInDateRange = getDateRangePredicate(startDate, ascending);
+        int year = startDate.getYear();
+        LocalDate result = null;
+
+        while (result == null) {
+            List<LocalDate> workdaysInYear = getWorkdaysInYear(year, isInDateRange);
+            int numberOfWorkdaysInYear = workdaysInYear.size();
+            if (numberOfWorkdaysInYear >= numberOfWorkdays) {
+                result = getWorkdayResult(workdaysInYear, numberOfWorkdaysInYear, numberOfWorkdays, ascending);
+            } else {
+                numberOfWorkdays -= numberOfWorkdaysInYear;
+            }
+            year = ascending ? ++year : --year;
+        }
+        return result;
+    }
+
+    private boolean isGuaranteedResultOfCalculateWorkday(LocalDate startDate, int numberOfWorkdays, boolean ascending) {
+        Boolean guaranteed = null;
+        int year = startDate.getYear();
+        Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isInDateRange = getDateRangePredicate(startDate, ascending);
+
+        while (guaranteed == null) {
+            if (year < MIN_YEAR || year > MAX_YEAR || !workdayCache.getCache().containsKey(Year.of(year))) {
+                guaranteed = false;
+            } else {
+                List<LocalDate> workdaysInYear = workdayCache.getCache().get(Year.of(year)).entrySet().stream().filter(isWorkday.and(isInDateRange))
+                        .map(Map.Entry::getKey).collect(Collectors.toList());
+                int numberOfWorkdaysInYear = workdaysInYear.size();
+                if (numberOfWorkdaysInYear >= numberOfWorkdays) {
+                    guaranteed = true;
+                } else {
+                    numberOfWorkdays -= numberOfWorkdaysInYear;
+                }
+            }
+            year = ascending ? ++year : --year;
+        }
+        return guaranteed;
+    }
+
+    private Predicate<Map.Entry<LocalDate, WorkdayCacheData>> getDateRangePredicate(LocalDate startDate, boolean ascending) {
+        Predicate<Map.Entry<LocalDate, WorkdayCacheData>> predicate;
+        if (ascending) {
+            predicate = x -> x.getKey().isAfter(startDate.minusDays(1));
+        } else {
+            predicate = x -> x.getKey().isBefore(startDate.plusDays(1));
+        }
+        return predicate;
+    }
+
+    private List<LocalDate> getWorkdaysInYear(int year, Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isInDateRange) throws BusinessException {
+        if (year > MAX_YEAR || year < MIN_YEAR) {
+            throw new BusinessException(ReasonCode.INVALID_INPUT, NUMBER_OF_WORKING_DAYS_OUT_OF_RANGE);
+        }
+        if (!workdayCache.getCache().containsKey(Year.of(year))) {
+            workdayCache.initYear(Year.of(year));
+        }
+        return workdayCache.getCache().get(Year.of(year)).entrySet().stream().filter(isWorkday.and(isInDateRange)).map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    private LocalDate getWorkdayResult(List<LocalDate> workdaysInYear, int workdayCountInYear, int numberOfWorkdays, boolean ascending) {
+        LocalDate result;
+        if (ascending) {
+            result = workdaysInYear.get(numberOfWorkdays);
+        } else {
+            result = workdaysInYear.get((workdayCountInYear - numberOfWorkdays) - 1);
+        }
+        return result;
     }
 
     private NavigableMap<LocalDate, WorkdayCacheData> calculateYears(LocalDate startDate, int numberOfWorkDays) {

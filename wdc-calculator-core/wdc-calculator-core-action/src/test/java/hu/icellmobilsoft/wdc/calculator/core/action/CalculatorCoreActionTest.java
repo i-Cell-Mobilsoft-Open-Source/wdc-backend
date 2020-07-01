@@ -20,7 +20,10 @@
 package hu.icellmobilsoft.wdc.calculator.core.action;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import java.time.DayOfWeek;
@@ -60,101 +63,116 @@ class CalculatorCoreActionTest {
     private CalculatorCoreAction underTest;
 
     void initCache2020May() {
-        cache.put(Year.of(2020), Stream.iterate(LocalDate.of(2020, 5, 1), d -> d.plusDays(1)).limit(31).collect(Collectors.toMap(d -> d,
-                d -> {
-                    WorkdayCacheData data = new WorkdayCacheData();
-                    data.setDate(d);
-                    data.setWorkday(!d.getDayOfWeek().equals(DayOfWeek.SATURDAY) && !d.getDayOfWeek().equals(DayOfWeek.SUNDAY));
-                    return data;
-                }, (o1, o2) -> o2, TreeMap::new)));
+        cache.put(Year.of(2020), Stream.iterate(LocalDate.of(2020, 5, 1), d -> d.plusDays(1)).limit(31).collect(Collectors.toMap(d -> d, d -> {
+            WorkdayCacheData data = new WorkdayCacheData();
+            data.setDate(d);
+            data.setWorkday(!d.getDayOfWeek().equals(DayOfWeek.SATURDAY) && !d.getDayOfWeek().equals(DayOfWeek.SUNDAY));
+            return data;
+        }, (o1, o2) -> o2, TreeMap::new)));
         when(workdayCache.getCache()).thenReturn(cache);
     }
 
+    void enableInit2021() {
+        doAnswer(invocationOnMock -> {
+            cache.put(Year.of(2021), Stream.iterate(LocalDate.of(2021, 1, 1), d -> d.plusDays(1)).limit(365).collect(Collectors.toMap(d -> d, d -> {
+                WorkdayCacheData data = new WorkdayCacheData();
+                data.setDate(d);
+                data.setWorkday(!d.getDayOfWeek().equals(DayOfWeek.SATURDAY) && !d.getDayOfWeek().equals(DayOfWeek.SUNDAY));
+                return data;
+            }, (o1, o2) -> o2, TreeMap::new)));
+            return null;
+        }).when(workdayCache).initYear(Year.of(2021));
+    }
+
     @Test
-    @DisplayName("Testing calculateWorkday() with positive numberOfWorkDays and no weekend in the interval")
+    @DisplayName("Testing calculateWorkday() with positive numberOfWorkdays and no weekend in the interval")
     void testCalculateWorkdayPositiveNOWDAndHasNoWeekend() throws BusinessException {
         // Given
         initCache2020May();
         LocalDate startDate = LocalDate.of(2020, 5, 12);
-        int numberOfWorkDays = 3;
+        int numberOfWorkdays = 3;
         // When
-        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkDays);
+        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkdays);
         // Then
         assertEquals(LocalDate.of(2020, 5, 15), actual);
     }
 
     @Test
-    @DisplayName("Testing calculateWorkday() with positive numberOfWorkDays and weekend in the interval")
+    @DisplayName("Testing calculateWorkday() with positive numberOfWorkdays and weekend in the interval")
     void testCalculateWorkdayPositiveNOWDAndHasWeekend() throws BusinessException {
         // Given
         initCache2020May();
         LocalDate startDate = LocalDate.of(2020, 5, 15);
-        int numberOfWorkDays = 3;
+        int numberOfWorkdays = 3;
         // When
-        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkDays);
+        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkdays);
         // Then
         assertEquals(LocalDate.of(2020, 5, 20), actual);
     }
 
     @Test
-    @DisplayName("Testing calculateWorkday() with negative numberOfWorkDays and no weekend in the interval")
+    @DisplayName("Testing calculateWorkday() with negative numberOfWorkdays and no weekend in the interval")
     void testCalculateWorkdayNegativeNOWDAndHasNoWeekend() throws BusinessException {
         // Given
         initCache2020May();
         LocalDate startDate = LocalDate.of(2020, 5, 15);
-        int numberOfWorkDays = -3;
+        int numberOfWorkdays = -3;
         // When
-        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkDays);
+        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkdays);
         // Then
         assertEquals(LocalDate.of(2020, 5, 12), actual);
     }
 
     @Test
-    @DisplayName("Testing calculateWorkday() with negative numberOfWorkDays and weekend in the interval")
+    @DisplayName("Testing calculateWorkday() with negative numberOfWorkdays and weekend in the interval")
     void testCalculateWorkdayNegativeNOWDAndHasWeekend() throws BusinessException {
         // Given
         initCache2020May();
         LocalDate startDate = LocalDate.of(2020, 5, 13);
-        int numberOfWorkDays = -3;
+        int numberOfWorkdays = -3;
         // When
-        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkDays);
+        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkdays);
         // Then
         assertEquals(LocalDate.of(2020, 5, 8), actual);
     }
 
     @Test
     @DisplayName("Testing calculateWorkday() when startDate year is not in cache")
-    void testCalculateWorkdayStartDateNotInCache() {
+    void testCalculateWorkdayStartDateNotInCache() throws BusinessException {
         // Given
         initCache2020May();
-        LocalDate startDate = LocalDate.of(2025, 5, 15);
-        int numberOfWorkDays = 3;
+        enableInit2021();
+        LocalDate startDate = LocalDate.of(2021, 5, 13); // thursday
+        int numberOfWorkdays = 3;
         // When
+        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkdays);
         // Then
-        assertThrows(BusinessException.class, () -> underTest.calculateWorkday(startDate, numberOfWorkDays));
+        assertEquals(LocalDate.of(2021, 5, 18), actual); // tuesday
     }
 
     @Test
-    @DisplayName("Testing calculateWorkday() when numberOfWorkDays param is 0 (empty interval)")
+    @DisplayName("Testing calculateWorkday() when numberOfWorkdays param is 0 (empty interval)")
     void testCalculateWorkdayNOWDZero() {
         // Given
         LocalDate startDate = LocalDate.of(2020, 5, 15);
-        int numberOfWorkDays = 0;
+        int numberOfWorkdays = 0;
         // When
         // Then
-        assertThrows(BusinessException.class, () -> underTest.calculateWorkday(startDate, numberOfWorkDays));
+        assertThrows(BusinessException.class, () -> underTest.calculateWorkday(startDate, numberOfWorkdays));
     }
 
     @Test
-    @DisplayName("Testing calculateWorkday() when numberOfWorkDays param is more than cached workdays")
-    void testCalculateWorkdayNOWDOutOfCacheRange() {
+    @DisplayName("Testing calculateWorkday() when numberOfWorkdays param is more than cached workdays")
+    void testCalculateWorkdayNOWDOutOfCacheRange() throws BusinessException {
         // Given
         initCache2020May();
-        LocalDate startDate = LocalDate.of(2020, 5, 15);
-        int numberOfWorkDays = 600;
+        enableInit2021();
+        LocalDate startDate = LocalDate.of(2020, 5, 31);
+        int numberOfWorkdays = 250;
         // When
+        LocalDate actual = underTest.calculateWorkday(startDate, numberOfWorkdays);
         // Then
-        assertThrows(BusinessException.class, () -> underTest.calculateWorkday(startDate, numberOfWorkDays));
+        assertEquals(LocalDate.of(2021, 12, 17), actual); // tuesday
     }
 
     @Test
@@ -251,5 +269,69 @@ class CalculatorCoreActionTest {
         // When
         // Then
         assertThrows(BusinessException.class, () -> underTest.calculateWorkdayList(startDate, endDate));
+    }
+
+    @Test
+    @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() with positive numberOfWorkdays")
+    void testIsGuaranteedResultOfCalculateWorkdayPositiveNOWD() {
+        // Given
+        initCache2020May();
+        LocalDate startDate = LocalDate.of(2020, 5, 12);
+        int numberOfWorkdays = 3;
+        // When
+        boolean actual = underTest.isGuaranteedResultOfCalculateWorkday(startDate, numberOfWorkdays);
+        // Then
+        assertTrue(actual);
+    }
+
+    @Test
+    @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() with negative numberOfWorkdays")
+    void testIsGuaranteedResultOfCalculateWorkdayNegativeNOWD() {
+        // Given
+        initCache2020May();
+        LocalDate startDate = LocalDate.of(2020, 5, 15);
+        int numberOfWorkdays = -3;
+        // When
+        boolean actual = underTest.isGuaranteedResultOfCalculateWorkday(startDate, numberOfWorkdays);
+        // Then
+        assertTrue(actual);
+    }
+
+    @Test
+    @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() when startDate year is not in cache")
+    void testIsGuaranteedResultOfCalculateWorkdayStartDateNotInCache() {
+        // Given
+        initCache2020May();
+        LocalDate startDate = LocalDate.of(2020, 5, 13);
+        int numberOfWorkdays = 30;
+        // When
+        boolean actual = underTest.isGuaranteedResultOfCalculateWorkday(startDate, numberOfWorkdays);
+        // Then
+        assertFalse(actual);
+    }
+
+    @Test
+    @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() when numberOfWorkdays param is 0 (empty interval)")
+    void testIsGuaranteedResultOfCalculateWorkdayNOWDZero() {
+        // Given
+        LocalDate startDate = LocalDate.of(2020, 5, 15);
+        int numberOfWorkdays = 0;
+        // When
+        boolean actual = underTest.isGuaranteedResultOfCalculateWorkday(startDate, numberOfWorkdays);
+        // Then
+        assertFalse(actual);
+    }
+
+    @Test
+    @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() when numberOfWorkdays param is more than cached workdays")
+    void testIsGuaranteedResultOfCalculateWorkdayNOWDOutOfCacheRange() {
+        // Given
+        initCache2020May();
+        LocalDate startDate = LocalDate.of(2020, 5, 31);
+        int numberOfWorkdays = 250;
+        // When
+        boolean actual = underTest.isGuaranteedResultOfCalculateWorkday(startDate, numberOfWorkdays);
+        // Then
+        assertFalse(actual);
     }
 }
