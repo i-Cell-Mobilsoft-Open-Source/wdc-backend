@@ -43,6 +43,13 @@ import hu.icellmobilsoft.wdc.calculator.core.action.exception.ReasonCode;
 @Model
 public class CalculatorCoreAction {
 
+    private static final int MIN_YEAR = 1;
+    private static final int MAX_YEAR = 2100;
+
+    private static final String NUMBER_OF_WORKING_DAYS_OUT_OF_RANGE = "The number of working days is out of date range!";
+
+    private static final Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isWorkDay = x -> x.getValue().isWorkday();
+
     @Inject
     private WorkdayCache workdayCache;
 
@@ -125,8 +132,11 @@ public class CalculatorCoreAction {
         if (numberOfWorkDays == 0) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Number Of Workdays can't be 0!");
         }
-        if (!workdayCache.getCache().containsKey(Year.of(startDate.getYear()))) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "Year not found: " + startDate.getYear());
+        if (startDate == null) {
+            throw new BusinessException(ReasonCode.INVALID_INPUT, "StartDate is missing!");
+        }
+        if (startDate.getYear() < MIN_YEAR || startDate.getYear() > MAX_YEAR) {
+            throw new BusinessException(ReasonCode.INVALID_INPUT, "Start year must be between " + MIN_YEAR + " and " + MAX_YEAR + "!");
         }
     }
 
