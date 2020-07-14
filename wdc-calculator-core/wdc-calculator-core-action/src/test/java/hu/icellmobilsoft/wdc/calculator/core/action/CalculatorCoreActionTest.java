@@ -54,7 +54,7 @@ import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
 @DisplayName("Testing CalculatorCoreAction class")
 class CalculatorCoreActionTest {
 
-    private Map<Year, TreeMap<LocalDate, WorkdayCacheData>> cache = new HashMap<>();
+    private final Map<Year, TreeMap<LocalDate, WorkdayCacheData>> cache = new HashMap<>();
 
     @Mock
     private WorkdayCache workdayCache;
@@ -70,6 +70,10 @@ class CalculatorCoreActionTest {
             return data;
         }, (o1, o2) -> o2, TreeMap::new)));
         when(workdayCache.getCache()).thenReturn(cache);
+    }
+
+    void setIsGuaranteed(Year year, boolean guaranteed) {
+        when(workdayCache.isGuaranteedYear(year)).thenReturn(guaranteed);
     }
 
     void enableInit2021() {
@@ -273,9 +277,10 @@ class CalculatorCoreActionTest {
 
     @Test
     @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() with positive numberOfWorkdays")
-    void testIsGuaranteedResultOfCalculateWorkdayPositiveNOWD() {
+    void testIsGuaranteedResultOfCalculateWorkdayPositiveNOWD() throws BusinessException {
         // Given
         initCache2020May();
+        setIsGuaranteed(Year.of(2020), true);
         LocalDate startDate = LocalDate.of(2020, 5, 12);
         int numberOfWorkdays = 3;
         // When
@@ -286,9 +291,10 @@ class CalculatorCoreActionTest {
 
     @Test
     @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() with negative numberOfWorkdays")
-    void testIsGuaranteedResultOfCalculateWorkdayNegativeNOWD() {
+    void testIsGuaranteedResultOfCalculateWorkdayNegativeNOWD() throws BusinessException {
         // Given
         initCache2020May();
+        setIsGuaranteed(Year.of(2020), true);
         LocalDate startDate = LocalDate.of(2020, 5, 15);
         int numberOfWorkdays = -3;
         // When
@@ -298,10 +304,10 @@ class CalculatorCoreActionTest {
     }
 
     @Test
-    @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() when startDate year is not in cache")
-    void testIsGuaranteedResultOfCalculateWorkdayStartDateNotInCache() {
+    @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() when startDate year is not guaranteed")
+    void testIsGuaranteedResultOfCalculateWorkdayStartYearNotGuaranteed() throws BusinessException {
         // Given
-        initCache2020May();
+        setIsGuaranteed(Year.of(2020), false);
         LocalDate startDate = LocalDate.of(2020, 5, 13);
         int numberOfWorkdays = 30;
         // When
@@ -317,16 +323,17 @@ class CalculatorCoreActionTest {
         LocalDate startDate = LocalDate.of(2020, 5, 15);
         int numberOfWorkdays = 0;
         // When
-        boolean actual = underTest.isGuaranteedResultOfCalculateWorkday(startDate, numberOfWorkdays);
         // Then
-        assertFalse(actual);
+        assertThrows(BusinessException.class, () -> underTest.isGuaranteedResultOfCalculateWorkday(startDate, numberOfWorkdays));
     }
 
     @Test
     @DisplayName("Testing isGuaranteedResultOfCalculateWorkday() when numberOfWorkdays param is more than cached workdays")
-    void testIsGuaranteedResultOfCalculateWorkdayNOWDOutOfCacheRange() {
+    void testIsGuaranteedResultOfCalculateWorkdayNOWDOutOfCacheRange() throws BusinessException {
         // Given
         initCache2020May();
+        setIsGuaranteed(Year.of(2020), true);
+        setIsGuaranteed(Year.of(2021), false);
         LocalDate startDate = LocalDate.of(2020, 5, 31);
         int numberOfWorkdays = 250;
         // When
