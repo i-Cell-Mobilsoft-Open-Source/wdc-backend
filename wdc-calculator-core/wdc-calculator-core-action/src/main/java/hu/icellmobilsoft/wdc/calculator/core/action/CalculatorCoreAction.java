@@ -124,7 +124,7 @@ public class CalculatorCoreAction {
         int numberOfWorkdaysInYear = workdaysInYear.size();
 
         if (numberOfWorkdaysInYear >= Math.abs(numberOfWorkdays)) {
-            result = getWorkdayResult(workdaysInYear, numberOfWorkdaysInYear, numberOfWorkdays);
+            result = getWorkdayResult(workdaysInYear, numberOfWorkdays);
         } else {
             LocalDate nextStartDate = numberOfWorkdays > 0 ? LocalDate.of(year + 1, 1, 1) : LocalDate.of(year - 1, 12, 31);
             int remainingNumberOfWorkdays = numberOfWorkdays > 0 ? numberOfWorkdays - numberOfWorkdaysInYear
@@ -178,12 +178,12 @@ public class CalculatorCoreAction {
                 .collect(Collectors.toList());
     }
 
-    private LocalDate getWorkdayResult(List<LocalDate> workdaysInYear, int workdayCountInYear, int numberOfWorkdays) {
+    private LocalDate getWorkdayResult(List<LocalDate> workdaysInYear, int numberOfWorkdays) {
         LocalDate result;
         if (numberOfWorkdays > 0) {
             result = workdaysInYear.get(numberOfWorkdays);
         } else {
-            result = workdaysInYear.get((workdayCountInYear + numberOfWorkdays) - 1);
+            result = workdaysInYear.get((workdaysInYear.size() + numberOfWorkdays) - 1);
         }
         return result;
     }
