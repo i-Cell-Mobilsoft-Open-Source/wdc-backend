@@ -20,6 +20,9 @@
 package hu.icellmobilsoft.wdc.calculator.core.action;
 
 import java.time.Year;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
@@ -35,6 +38,8 @@ import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
  */
 @ApplicationScoped
 public class WorkdayCacheInitializer {
+
+    private static Logger logger = Logger.getLogger(WorkdayCacheInitializer.class.getSimpleName());
 
     @Inject
     private WorkdayDataReader workdayDataReader;
@@ -57,11 +62,28 @@ public class WorkdayCacheInitializer {
         } catch (BusinessException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+
+        initScheduler();
     }
 
     private void initWorkdayCache() {
         workdayCache.initYear(Year.now().minusYears(1));
         workdayCache.initYear(Year.now());
         workdayCache.initYear(Year.now().plusYears(1));
+    }
+
+    private void initScheduler() {
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                checkChanges();
+            }
+        };
+        timer.scheduleAtFixedRate(task, 0, 3600000);
+    }
+
+    public void checkChanges() { //TODO
+        logger.info(">> WorkdayCacheInitializer.checkChanges()");
     }
 }
