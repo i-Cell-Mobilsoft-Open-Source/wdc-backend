@@ -24,11 +24,7 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,7 +51,14 @@ public class WorkdayCache {
      *         (every date in the given year) and a WorkdayCacheData as value.
      */
     public Map<Year, TreeMap<LocalDate, WorkdayCacheData>> getCache() {
-        return cache;
+        return Collections.unmodifiableMap(cache);
+    }
+
+    /**
+     * Clears cache
+     */
+    public void clearCache() {
+        this.cache.clear();
     }
 
     /**
