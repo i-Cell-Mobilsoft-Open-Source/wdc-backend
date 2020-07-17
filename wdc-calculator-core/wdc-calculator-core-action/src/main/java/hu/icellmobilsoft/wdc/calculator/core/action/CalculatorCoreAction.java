@@ -99,12 +99,33 @@ public class CalculatorCoreAction {
     public List<LocalDate> calculateWorkdayList(LocalDate startDate, LocalDate endDate) throws BusinessException {
         validateCalculateWorkdayListParams(startDate, endDate);
 
-        NavigableMap<LocalDate, WorkdayCacheData> years = calculateYears(startDate, 1);
+        streamYearsBetween(startDate, endDate).filter(y -> !workdayCache.getCache().containsKey(y)).forEach(y -> workdayCache.initYear(y));
+        NavigableMap<LocalDate, WorkdayCacheData> years = calculateYears(startDate, endDate);
 
         Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isInDateRange = x -> x.getKey().isAfter(startDate.minusDays(1))
                 && x.getKey().isBefore(endDate.plusDays(1));
 
         return years.entrySet().stream().filter(isWorkday.and(isInDateRange)).map(Map.Entry::getKey).collect(Collectors.toList());
+    }
+
+    /**
+     * Returns whether the result of the given calculateWorkdayList method is guaranteed.
+     *
+     * @param startDate
+     *            From date (inclusive).\n Valid dates between years 1 and 2100.
+     * @param endDate
+     *            To date (inclusive).\n Valid dates between years 1 and 2100.
+     * @return boolean
+     * @throws BusinessException
+     *             Throws on invalid input parameters
+     */
+    public boolean isGuaranteedResultOfCalculateWorkdayList(LocalDate startDate, LocalDate endDate) throws BusinessException {
+        validateCalculateWorkdayListParams(startDate, endDate);
+        return streamYearsBetween(startDate, endDate).allMatch(y -> workdayCache.isGuaranteedYear(y));
+    }
+
+    private Stream<Year> streamYearsBetween(LocalDate startDate, LocalDate endDate) {
+        return Stream.iterate(Year.of(startDate.getYear()), y -> y.plusYears(1)).limit(endDate.getYear() - startDate.getYear() + 1L);
     }
 
     private LocalDate calculateWorkdayRecursively(LocalDate startDate, int numberOfWorkdays) throws BusinessException {
@@ -188,20 +209,12 @@ public class CalculatorCoreAction {
         return result;
     }
 
-    private NavigableMap<LocalDate, WorkdayCacheData> calculateYears(LocalDate startDate, int numberOfWorkDays) {
-        NavigableMap<LocalDate, WorkdayCacheData> result;
-        if (numberOfWorkDays > 0) {
-            result = filterYears(entry -> entry.getKey().getValue() >= startDate.getYear());
-        } else {
-            result = filterYears(entry -> entry.getKey().getValue() <= startDate.getYear()).descendingMap();
-        }
+    private NavigableMap<LocalDate, WorkdayCacheData> calculateYears(LocalDate startDate, LocalDate endDate) {
+        NavigableMap<LocalDate, WorkdayCacheData> result = new TreeMap<>();
+        Predicate<Map.Entry<Year, TreeMap<LocalDate, WorkdayCacheData>>> isInDateRange = entry -> entry.getKey().getValue() >= startDate.getYear()
+                && entry.getKey().getValue() <= endDate.getYear();
+        workdayCache.getCache().entrySet().stream().filter(isInDateRange).forEach(entry -> result.putAll(entry.getValue()));
         return result;
-    }
-
-    private NavigableMap<LocalDate, WorkdayCacheData> filterYears(Predicate<Map.Entry<Year, TreeMap<LocalDate, WorkdayCacheData>>> isInDateRange) {
-        NavigableMap<LocalDate, WorkdayCacheData> years = new TreeMap<>();
-        workdayCache.getCache().entrySet().stream().filter(isInDateRange).forEach(entry -> years.putAll(entry.getValue()));
-        return years;
     }
 
     private void validateCalculateWorkdayParams(LocalDate startDate, int numberOfWorkdays) throws BusinessException {
@@ -221,13 +234,10 @@ public class CalculatorCoreAction {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "StartDate and/or endDate is missing!");
         }
         if (startDate.isAfter(endDate)) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "EndDate can't be earlier then startDate!");
+            throw new BusinessException(ReasonCode.INVALID_INPUT, "EndDate cannot be earlier then startDate!");
         }
-        List<Year> yearsBetween = Stream.iterate(Year.of(startDate.getYear()), y -> y.plusYears(1))
-                .limit(endDate.getYear() - startDate.getYear() + 1L).collect(Collectors.toList());
-        if (!workdayCache.getCache().keySet().containsAll(yearsBetween)) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "Data not found for one or more years between startDate and endDate!");
-
+        if (startDate.getYear() < MIN_YEAR || startDate.getYear() > MAX_YEAR || endDate.getYear() < MIN_YEAR || endDate.getYear() > MAX_YEAR) {
+            throw new BusinessException(ReasonCode.INVALID_INPUT, "Start and end years must be between " + MIN_YEAR + " and " + MAX_YEAR + "!");
         }
     }
 }
