@@ -19,10 +19,17 @@
  */
 package hu.icellmobilsoft.wdc.calculator.core.action;
 
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.time.Year;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Initialized;
@@ -30,6 +37,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
+import hu.icellmobilsoft.wdc.calculator.core.config.CalculatorCoreConfig;
 
 /**
  * Workday Calendar initializer class
@@ -39,7 +47,10 @@ import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
 @ApplicationScoped
 public class WorkdayCacheInitializer {
 
-    private static Logger logger = Logger.getLogger(WorkdayCacheInitializer.class.getSimpleName());
+    private WatchService watchService;
+
+    @Inject
+    private CalculatorCoreConfig calculatorCoreConfig;
 
     @Inject
     private WorkdayDataReader workdayDataReader;
@@ -58,8 +69,8 @@ public class WorkdayCacheInitializer {
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
         this.initWorkdayCache();
         try {
-            workdayDataReader.readAll();
-        } catch (BusinessException e) {
+            initDirWatch();
+        } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
 
@@ -67,9 +78,19 @@ public class WorkdayCacheInitializer {
     }
 
     private void initWorkdayCache() {
-        workdayCache.initYear(Year.now().minusYears(1));
-        workdayCache.initYear(Year.now());
-        workdayCache.initYear(Year.now().plusYears(1));
+        synchronized (workdayCache.getLockObject()) {
+            workdayCache.clearCache();
+
+            workdayCache.initYear(Year.now().minusYears(1));
+            workdayCache.initYear(Year.now());
+            workdayCache.initYear(Year.now().plusYears(1));
+
+            try {
+                workdayDataReader.readAll();
+            } catch (BusinessException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
     }
 
     private void initScheduler() {
@@ -83,7 +104,28 @@ public class WorkdayCacheInitializer {
         timer.scheduleAtFixedRate(task, 0, 3600000);
     }
 
-    public void checkChanges() { //TODO
-        logger.info(">> WorkdayCacheInitializer.checkChanges()");
+    public void checkChanges() {
+        boolean reInit = false;
+        WatchKey watchKey;
+        while ((watchKey=watchService.poll()) != null) {
+            List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
+            if (!watchEvents.isEmpty()) {
+                reInit = true;
+            }
+            watchKey.reset();
+        }
+
+        if (reInit) {
+           initWorkdayCache();
+        }
+    }
+
+    private void initDirWatch() throws IOException {
+        watchService = FileSystems.getDefault().newWatchService();
+        Paths.get(calculatorCoreConfig.getDataFileFolder())
+                .register(watchService,
+                        StandardWatchEventKinds.ENTRY_CREATE,
+                        StandardWatchEventKinds.ENTRY_MODIFY,
+                        StandardWatchEventKinds.ENTRY_DELETE);
     }
 }
