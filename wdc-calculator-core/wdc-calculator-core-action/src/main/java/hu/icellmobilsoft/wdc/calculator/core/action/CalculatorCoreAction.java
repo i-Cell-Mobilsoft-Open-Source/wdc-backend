@@ -129,12 +129,12 @@ public class CalculatorCoreAction {
     }
 
     private LocalDate calculateWorkdayRecursively(LocalDate startDate, int numberOfWorkdays) throws BusinessException {
-        LocalDate result;
-
-        int year = startDate.getYear();
-        if (year > MAX_YEAR || year < MIN_YEAR) {
+        if (notInDateRange(startDate)) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, NUMBER_OF_WORKING_DAYS_OUT_OF_RANGE);
         }
+
+        LocalDate result;
+        int year = startDate.getYear();
         Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isInDateRange = getDateRangePredicate(startDate, numberOfWorkdays);
 
         if (!workdayCache.getCache().containsKey(Year.of(year))) {
@@ -157,12 +157,12 @@ public class CalculatorCoreAction {
     }
 
     private boolean isGuaranteedResultOfCalculateWorkdayRecursive(LocalDate startDate, int numberOfWorkdays) throws BusinessException {
-        boolean guaranteed;
-
-        int year = startDate.getYear();
-        if (year > MAX_YEAR || year < MIN_YEAR) {
+        if (notInDateRange(startDate)) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, NUMBER_OF_WORKING_DAYS_OUT_OF_RANGE);
         }
+
+        boolean guaranteed;
+        int year = startDate.getYear();
         Predicate<Map.Entry<LocalDate, WorkdayCacheData>> isInDateRange = getDateRangePredicate(startDate, numberOfWorkdays);
 
         if (!workdayCache.isGuaranteedYear(Year.of(year))) {
@@ -224,7 +224,7 @@ public class CalculatorCoreAction {
         if (startDate == null) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "StartDate is missing!");
         }
-        if (startDate.getYear() < MIN_YEAR || startDate.getYear() > MAX_YEAR) {
+        if (notInDateRange(startDate)) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Start year must be between " + MIN_YEAR + " and " + MAX_YEAR + "!");
         }
     }
@@ -236,8 +236,15 @@ public class CalculatorCoreAction {
         if (startDate.isAfter(endDate)) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "EndDate cannot be earlier then startDate!");
         }
-        if (startDate.getYear() < MIN_YEAR || startDate.getYear() > MAX_YEAR || endDate.getYear() < MIN_YEAR || endDate.getYear() > MAX_YEAR) {
+        if (notInDateRange(startDate) || notInDateRange(endDate)) {
             throw new BusinessException(ReasonCode.INVALID_INPUT, "Start and end years must be between " + MIN_YEAR + " and " + MAX_YEAR + "!");
         }
+    }
+
+    private boolean notInDateRange(LocalDate date) {
+        if (date == null) {
+            return true;
+        }
+        return date.getYear() > MAX_YEAR || date.getYear() < MIN_YEAR;
     }
 }
