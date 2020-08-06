@@ -104,10 +104,7 @@ public class WorkdayCacheInitializer {
         timer.scheduleAtFixedRate(task, 0, 3600000);
     }
 
-    /**
-     * Checks for changes in input folder, if any found reinitialises work day cache.
-     */
-    public void checkChanges() {
+    private void checkChanges() {
         boolean reInit = false;
         WatchKey watchKey;
         while ((watchKey=watchService.poll()) != null) {
