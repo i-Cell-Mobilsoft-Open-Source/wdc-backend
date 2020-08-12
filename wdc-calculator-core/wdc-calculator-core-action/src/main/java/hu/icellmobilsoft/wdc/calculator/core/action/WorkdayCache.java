@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,6 +49,8 @@ public class WorkdayCache {
 
     private Set<Year> guaranteedYears = new HashSet<>();
 
+    private final Object lockObject = new Object();
+
     /**
      * Returns the cache of workdays
      *
@@ -55,7 +58,25 @@ public class WorkdayCache {
      *         (every date in the given year) and a WorkdayCacheData as value.
      */
     public Map<Year, TreeMap<LocalDate, WorkdayCacheData>> getCache() {
-        return cache;
+        synchronized (lockObject) {
+            return Collections.unmodifiableMap(cache);
+        }
+    }
+
+    /**
+     * Returns the lock object for concurrent modifications
+     *
+     * @return lockObject
+     */
+    public Object getLockObject() {
+        return lockObject;
+    }
+
+    /**
+     * Clears cache
+     */
+    public void clearCache() {
+        this.cache.clear();
     }
 
     /**
