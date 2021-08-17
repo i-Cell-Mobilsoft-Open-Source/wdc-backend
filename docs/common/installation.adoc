@@ -1,0 +1,16 @@
+[#common_installation]
+= Installation
+
+Min.
+JDK version: 1.8
+
+This project is available in maven central as:
+
+[source,xml]
+----
+<dependency>
+    <groupId>hu.icellmobilsoft.wdc</groupId>
+    <artifactId>wdc-calculator-core-action</artifactId>
+    <version>1.1.0</version>
+</dependency>
+----
