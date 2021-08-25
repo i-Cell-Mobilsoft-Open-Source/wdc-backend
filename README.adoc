@@ -16,7 +16,7 @@ After initialization, the module provides methods for querying the n-th workday 
 = Installation
 
 Min.
-JDK version: 1.8
+JDK version: 1.11
 
 This project is available in maven central as:
 
