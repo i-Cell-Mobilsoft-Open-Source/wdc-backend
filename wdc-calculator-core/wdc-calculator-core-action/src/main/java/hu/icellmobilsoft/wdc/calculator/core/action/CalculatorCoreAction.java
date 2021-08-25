@@ -32,8 +32,8 @@ import java.util.stream.Stream;
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
 
-import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
-import hu.icellmobilsoft.wdc.calculator.core.action.exception.ReasonCode;
+import hu.icellmobilsoft.coffee.dto.exception.BusinessException;
+import hu.icellmobilsoft.coffee.dto.exception.enums.CoffeeFaultType;
 
 /**
  * Calculator core action class
@@ -130,7 +130,7 @@ public class CalculatorCoreAction {
 
     private LocalDate calculateWorkdayRecursively(LocalDate startDate, int numberOfWorkdays) throws BusinessException {
         if (notInDateRange(startDate)) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, NUMBER_OF_WORKING_DAYS_OUT_OF_RANGE);
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, NUMBER_OF_WORKING_DAYS_OUT_OF_RANGE);
         }
 
         LocalDate result;
@@ -158,7 +158,7 @@ public class CalculatorCoreAction {
 
     private boolean isGuaranteedResultOfCalculateWorkdayRecursive(LocalDate startDate, int numberOfWorkdays) throws BusinessException {
         if (notInDateRange(startDate)) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, NUMBER_OF_WORKING_DAYS_OUT_OF_RANGE);
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, NUMBER_OF_WORKING_DAYS_OUT_OF_RANGE);
         }
 
         boolean guaranteed;
@@ -219,25 +219,25 @@ public class CalculatorCoreAction {
 
     private void validateCalculateWorkdayParams(LocalDate startDate, int numberOfWorkdays) throws BusinessException {
         if (numberOfWorkdays == 0) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "Number Of Workdays cannot be 0!");
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "Number Of Workdays cannot be 0!");
         }
         if (startDate == null) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "StartDate is missing!");
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "StartDate is missing!");
         }
         if (notInDateRange(startDate)) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "Start year must be between " + MIN_YEAR + " and " + MAX_YEAR + "!");
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "Start year must be between " + MIN_YEAR + " and " + MAX_YEAR + "!");
         }
     }
 
     private void validateCalculateWorkdayListParams(LocalDate startDate, LocalDate endDate) throws BusinessException {
         if (startDate == null || endDate == null) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "StartDate and/or endDate is missing!");
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "StartDate and/or endDate is missing!");
         }
         if (startDate.isAfter(endDate)) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "EndDate cannot be earlier then startDate!");
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "EndDate cannot be earlier then startDate!");
         }
         if (notInDateRange(startDate) || notInDateRange(endDate)) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "Start and end years must be between " + MIN_YEAR + " and " + MAX_YEAR + "!");
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "Start and end years must be between " + MIN_YEAR + " and " + MAX_YEAR + "!");
         }
     }
 

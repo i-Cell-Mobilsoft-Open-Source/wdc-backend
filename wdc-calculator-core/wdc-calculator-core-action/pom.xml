@@ -16,6 +16,7 @@
 		<version.mockito>3.1.0</version.mockito>
 		<version.assertj>3.13.2</version.assertj>
 		<version.commons.lang>3.10</version.commons.lang>
+		<version.coffee>1.6.0</version.coffee>
 	</properties>
 
 	<dependencies>
@@ -47,6 +48,18 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${version.commons.lang}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>hu.icellmobilsoft.coffee</groupId>
+			<artifactId>coffee-dto-base</artifactId>
+			<version>${version.coffee}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.xml.bind</groupId>
+					<artifactId>jaxb-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- TEST -->
