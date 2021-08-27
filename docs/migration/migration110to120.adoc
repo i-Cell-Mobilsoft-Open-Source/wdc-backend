@@ -1,0 +1,119 @@
+= v1.1.0 → v1.2.0
+
+Workday Calendar v1.1.0->v1.2.0 migration descriptions, new features, changes.
+
+== Indication of relocated holidays
+
+This feature allows you to mark working days as a holiday and vice versa.
+It is possible to define type, replacement day and description for the calendar days in the source file.
+Possible values for the type (HolidayType): FEASTDAY, WEEKEND, RESTDAY, PLUSWORKINGDAY, NATIONALDAY.
+
+*workdayData.xsd changes*
+
+WorkdayDataType has been expanded with optional fields
+[source,xsd]
+----
+<xsd:complexType name="WorkdayDataType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="hu">Munkanap jelzésére szolgáló komplex adattípus.</xsd:documentation>
+            <xsd:documentation xml:lang="en">Complex type for indicating workday.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            ....
+            <xsd:element name="holidayType" type="HolidayType" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="hu">Munka, vagy munkaszüneti nap típusa.</xsd:documentation>
+                    <xsd:documentation xml:lang="en">Type of workday or holiday.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="substitutedDay" type="common:DayType" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="hu">Kiváltott naptári nap.</xsd:documentation>
+                    <xsd:documentation xml:lang="en">Substituted calendar day.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="description" type="xsd:string" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="hu">Leírása a napnak.</xsd:documentation>
+                    <xsd:documentation xml:lang="en">Description of the day.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+----
+
+Source file example to define new optional data
+[source,txt]
+----
+<workdayData>
+    <date>2020-08-21</date>
+    <workday>0</workday>
+    <holidayType>RESTDAY</holidayType>
+    <substitutedDay>2020-08-29</substitutedDay>
+    <description>moved Friday after 20th of August</description>
+</workdayData>
+<workdayData>
+    <date>2020-08-29</date>
+    <workday>1</workday>
+    <holidayType>PLUSWORKINGDAY</holidayType>
+    <substitutedDay>2020-08-21</substitutedDay>
+    <description>instead of 20th of August</description>
+</workdayData>
+----
+
+=== Change-over
+The changes do not result in migration work, they are backward compatible.
+
+== Warning for uninitialized data
+
+*Changes*
+
+* min and max constant for the years (min: 1) max (2100)
+* if the processing concerns a year that does not fall within this range than exception occurs
+* the initialization for 3 years (current, before and after the given year) remains at the start of the module, but if it is required during execution and the cache does not yet contain the affected year then initialize it (weekday is workday, weekend is non-working day)
+* the years specified in the input file are considered reliable years, if the processing concerns other years then it is no longer reliable
+* two new methods have been implemented to decide whether processing only affects reliable (guaranteed) or unreliable years:
+[source,java]
+----
+/**
+     * Returns whether the result of the given calculateWorkday method is guaranteed.
+     *
+     * @param startDate
+     *            From date.\n Valid dates between years 1 and 2100.
+     * @param numberOfWorkdays
+     *            Number of workdays.\n Cannot be 0, may be negative.
+     * @return boolean
+     * @throws BusinessException
+     *             Throws on invalid input parameters
+     */
+    public boolean isGuaranteedResultOfCalculateWorkday(LocalDate startDate, int numberOfWorkdays) throws BusinessException
+
+    /**
+     * Returns whether the result of the given calculateWorkdayList method is guaranteed.
+     *
+     * @param startDate
+     *            From date (inclusive).\n Valid dates between years 1 and 2100.
+     * @param endDate
+     *            To date (inclusive).\n Valid dates between years 1 and 2100.
+     * @return boolean
+     * @throws BusinessException
+     *             Throws on invalid input parameters
+     */
+    public boolean isGuaranteedResultOfCalculateWorkdayList(LocalDate startDate, LocalDate endDate) throws BusinessException
+----
+
+=== Change-over
+The changes do not result in migration work, they are backward compatible.
+
+== Source folder synchronization
+
+This feature allows you to not have to restart the module after modifying the source data file. The source folder is checked at regular intervals (hourly), and if the contents of the folder have changed, the module will re-initialize itself.
+
+=== Change-over
+The changes do not result in migration work, they are backward compatible.
+
+== Java11 upgrade
+JDK version upgraded 1.8 to 1.11
+
+=== Change-over
+*Workday Calendar can only be used where the JDK version is at least 1.11*

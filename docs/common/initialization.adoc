@@ -1,0 +1,49 @@
+[#common_initialization]
+= Initialization, configurations
+Workday Calendar uses an in-memory cache to store the necessary calendar data.
+The cache initializes as follows:
+
+. After launching the application, the cache gets initialized with data of three years:
+the actual year, last year and next year.
+This step uses in-built Java functions to determine whether a given date is a workday or weekend day.
+
+. After the first step, the module uses Microprofile Config to obtain the following three environmental variables:
+Data file folder, Include Days and Exclude Days.
+
+. Then, files under Data File Folder variable get processed.
+See <<Data File Folder>>
+
+. Next, dates given in Include Days variable get processed.
+See <<Include Days>>
+
+. Finally, dates given in Exclude Days variable get processed.
+See <<Exclude Days>>
+
+== Data File Folder
+
+The data file folder config key is "wdc.config.input.datafolder".
+This variable determines the path for input files.
+The purpose of these files is to add holidays and working weekends to the cache.
+
+Files are expected to be in .xml format and contain dates and workday flags (example: <<../../examples/datafile.xml, datafile.xml>>).
+Every file is validated against
+<<../../wdc-calculator-core/wdc-calculator-core-dto/src/main/resources/xsd/hu/icellmobilsoft/wdc/core/dto/datafile/workdayData.xsd, workdayData.xsd>>.
+For every date entry in a file, the corresponding workday flag gets overwritten in the cache.
+
+If a given date is not present in the cache yet, its year gets initialized as in the first step of the cache initialization process.
+
+== Include Days
+
+The include days config key is "wdc.config.input.include".
+This variable should contain dates separated with semicolons (example: 2019-12-07;2019-12-14).
+These determine workday dates, that should overwrite previous values.
+
+If a given date is not present in the cache yet, its year gets initialized as in the first step of the cache initialization process.
+
+== Exclude Days
+
+The exclude days config key is "wdc.config.input.exclude".
+This variable should contain dates separated with semicolons (example: 2019-12-07;2019-12-14).
+These determine non-workday dates, that should overwrite previous values.
+
+If a given date is not present in the cache yet, its year gets initialized as in the first step of the cache initialization process.
