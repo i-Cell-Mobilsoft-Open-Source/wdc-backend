@@ -1,0 +1,32 @@
+[#common_implementation]
+= Implementation
+
+A simple CDI based implementation of the Workday Calendar module would look like this:
+
+.CalculatorExample.java
+[source,java]
+----
+package somepackage;
+
+import java.time.LocalDate;
+import javax.inject.Inject;
+import hu.icellmobilsoft.wdc.calculator.core.action.CalculatorCoreAction;
+
+public class CalculatorExample {
+
+    @Inject
+    private CalculatorCoreAction calculatorCoreAction;
+
+    public void callMethods() {
+        private LocalDate startDate = LocalDate.of(2020, 5, 9);
+        private LocalDate endDate = LocalDate.of(2020, 5, 15);
+        private int days = 3;
+        try {
+            LocalDate workday = calculatorCoreAction.calculateWorkday(startDate, numberOfWorkdays);
+            List<Workday> workdayList = calculatorCoreAction.calculateWorkdayList(startDate, endDate);
+        } catch (BusinessException e) {
+            doSomething();
+        }
+    }
+}
+----
