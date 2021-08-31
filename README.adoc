@@ -12,7 +12,7 @@ Workday Calendar is a customizable module for workday calculations using in-memo
 After initialization, the module provides methods for querying the n-th workday before or after a given start date and querying a list of workdays between two dates.
 
 The project based on:
-JDK version: 1.8
+JDK version: 1.11
 
 :leveloffset: 1
 

@@ -112,3 +112,8 @@ This feature allows you to not have to restart the module after modifying the so
 === Change-over
 The changes do not result in migration work, they are backward compatible.
 
+== Java11 upgrade
+JDK version upgraded 1.8 to 1.11
+
+=== Change-over
+*Workday Calendar can only be used where the JDK version is at least 1.11*
