@@ -36,7 +36,7 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
+import hu.icellmobilsoft.coffee.dto.exception.BusinessException;
 import hu.icellmobilsoft.wdc.calculator.core.config.CalculatorCoreConfig;
 
 /**

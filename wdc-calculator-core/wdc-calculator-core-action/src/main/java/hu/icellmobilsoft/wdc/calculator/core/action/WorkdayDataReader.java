@@ -37,8 +37,8 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 
-import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
-import hu.icellmobilsoft.wdc.calculator.core.action.exception.ReasonCode;
+import hu.icellmobilsoft.coffee.dto.exception.BusinessException;
+import hu.icellmobilsoft.coffee.dto.exception.enums.CoffeeFaultType;
 import hu.icellmobilsoft.wdc.calculator.core.action.helper.HolidayTypeHelper;
 import hu.icellmobilsoft.wdc.calculator.core.config.CalculatorCoreConfig;
 import hu.icellmobilsoft.wdc.core.dto.datafile.datafile.HolidayType;
@@ -92,7 +92,7 @@ public class WorkdayDataReader {
                 });
             }
         } catch (IOException e) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "Error accessing data folder at: " + folderPath.toString(), e);
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "Error accessing data folder at: " + folderPath.toString(), e);
         }
     }
 
@@ -101,11 +101,11 @@ public class WorkdayDataReader {
             WorkdayData workdayData = MarshallingUtil.unmarshalXml(WorkdayData.class, new FileInputStream(file),
                     "xsd/hu/icellmobilsoft/wdc/core/dto/datafile/workdayData.xsd");
             if (workdayData == null) {
-                throw new BusinessException(ReasonCode.INVALID_INPUT, "Could not process file: " + file.getAbsolutePath());
+                throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "Could not process file: " + file.getAbsolutePath());
             }
             return workdayData;
         } catch (IOException e) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "Could not process file: " + file.getAbsolutePath(), e);
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "Could not process file: " + file.getAbsolutePath(), e);
         }
     }
 
@@ -113,7 +113,7 @@ public class WorkdayDataReader {
         try {
             readData(calculatorCoreConfig.getIncludeDays(), true);
         } catch (DateTimeParseException | IllegalArgumentException | BusinessException e) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "Include data could not be read. " + e.getMessage(), e);
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "Include data could not be read. " + e.getMessage(), e);
         }
     }
 
@@ -121,7 +121,7 @@ public class WorkdayDataReader {
         try {
             readData(calculatorCoreConfig.getExcludeDays(), false);
         } catch (DateTimeParseException | IllegalArgumentException | BusinessException e) {
-            throw new BusinessException(ReasonCode.INVALID_INPUT, "Exclude data could not be read. " + e.getMessage(), e);
+            throw new BusinessException(CoffeeFaultType.INVALID_INPUT, "Exclude data could not be read. " + e.getMessage(), e);
         }
     }
 
@@ -130,7 +130,7 @@ public class WorkdayDataReader {
             if (!entry.trim().isEmpty()) {
                 String[] fields = entry.split(FIELD_DELIMITER);
                 if (fields.length < 1 || fields.length > 4) {
-                    throw new BusinessException(ReasonCode.INVALID_INPUT,
+                    throw new BusinessException(CoffeeFaultType.INVALID_INPUT,
                             "Invalid format. Each entry should have between 1 and 4 fields. Entry {" + entry + "} is invalid.");
                 }
                 String[] fieldsFixLength = Arrays.copyOf(fields, 4);

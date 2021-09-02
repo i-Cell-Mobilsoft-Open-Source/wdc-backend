@@ -116,4 +116,10 @@ The changes do not result in migration work, they are backward compatible.
 JDK version upgraded 1.8 to 1.11
 
 === Change-over
-*Workday Calendar can only be used where the JDK version is at least 1.11*
+*Workday Calendar can only be used where the JDK version is at least 1.11.*
+
+== Replacing project-specific Exception with Coffee Exception
+The project-specific BusinessException has been removed and instead the CalculatorCoreAction methods will throw the Coffee BusinessException if any validation is failed.
+
+=== Change-over
+You must already expect the Coffee BusinessException when using the CalculatorCoreAction methods.

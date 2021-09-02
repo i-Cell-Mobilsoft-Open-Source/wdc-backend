@@ -45,7 +45,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import hu.icellmobilsoft.wdc.calculator.core.action.exception.BusinessException;
+import hu.icellmobilsoft.coffee.dto.exception.BusinessException;
 
 /**
  * Testing CalculatorCoreAction class
