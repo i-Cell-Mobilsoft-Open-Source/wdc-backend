@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>hu.icellmobilsoft.pom</groupId>
 		<artifactId>parent-oss-pom</artifactId>
-		<version>1.1.0</version>
+		<version>1.2.0</version>
 	</parent>
 
 	<groupId>hu.icellmobilsoft.wdc</groupId>
@@ -107,6 +107,17 @@
 					</includes>
 					<ignoreNoFileToScan>true</ignoreNoFileToScan>
 					<projectName>WDC</projectName>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.transformer</groupId>
+				<artifactId>transformer-maven-plugin</artifactId>
+				<version>0.5.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<rules>
+						<jakartaDefaults>true</jakartaDefaults>
+					</rules>
 				</configuration>
 			</plugin>
 		</plugins>

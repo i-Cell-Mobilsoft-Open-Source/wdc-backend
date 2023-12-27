@@ -11,8 +11,11 @@
 
 	<modules>
 		<module>wdc-calculator-core-dto</module>
+		<module>wdc-calculator-core-dto-jee-10</module>
 		<module>wdc-calculator-core-action</module>
+		<module>wdc-calculator-core-action-jee-10</module>
 	</modules>
+
     <dependencies>
         <dependency>
             <groupId>javax.xml.bind</groupId>
