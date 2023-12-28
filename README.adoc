@@ -29,4 +29,4 @@ The Workday Calendar can also be found in the official maven repository.
 </dependency>
 ----
 
-See page http://i-cell-mobilsoft-open-source.github.io/wdc-backend/[wdc-backend dokumentáció] for more details.
+See page http://i-cell-mobilsoft-open-source.github.io/wdc-backend/[wdc-backend documentation] for more details.

@@ -2,4 +2,5 @@
 = Migration description
 
 include::migration/migration110to120.adoc[leveloffset=+1]
+include::migration/migration120to130.adoc[leveloffset=+1]
 

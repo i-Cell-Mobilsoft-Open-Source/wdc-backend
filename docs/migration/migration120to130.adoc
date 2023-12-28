@@ -1,0 +1,18 @@
+= v1.2.0 → v1.3.0
+
+Workday Calendar v1.2.0->v1.3.0 migration descriptions, new features, changes.
+
+== JavaEE 10 support
+Added the following module alternatives which supports JavaEE 10:
+
+* wdc-calculator-core-dto-jee-10
+* wdc-calculator-core-action-jee-10
+
+=== Change-over
+The changes do not result in migration work, they are backward compatible.
+
+== parent pom upgrade
+The parent pom is upgraded from 1.1.0 to 1.4.0, in order to support JDK 17 compilation.
+
+=== Change-over
+The changes do not result in migration work, they are backward compatible.
