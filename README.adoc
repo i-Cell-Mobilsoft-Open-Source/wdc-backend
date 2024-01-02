@@ -25,7 +25,7 @@ The Workday Calendar can also be found in the official maven repository.
 <dependency>
     <groupId>hu.icellmobilsoft.wdc</groupId>
     <artifactId>wdc-calculator-core-action</artifactId>
-    <version>1.2.0</version>
+    <version>{version}</version>
 </dependency>
 ----
 
