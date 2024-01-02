@@ -10,7 +10,7 @@
 
 	<groupId>hu.icellmobilsoft.wdc</groupId>
 	<artifactId>wdc</artifactId>
-	<version>1.3.0-SNAPSHOT</version>
+	<version>1.3.0</version>
 	<packaging>pom</packaging>
 
 	<properties>
@@ -21,7 +21,7 @@
 		<connection>scm:git:git@github.com:i-Cell-Mobilsoft-Open-Source/wdc-backend.git</connection>
 		<developerConnection>scm:git:git@github.com:i-Cell-Mobilsoft-Open-Source/wdc-backend.git</developerConnection>
 		<url>https://github.com/i-Cell-Mobilsoft-Open-Source/wdc-backend.git</url>
-		<tag>HEAD</tag>
+		<tag>wdc-1.3.0</tag>
 	</scm>
 	<name>icellmobilsoft workday calendar</name>
 	<description>Workday calendar for i-Cell Mobilsoft Zrt. projects</description>
