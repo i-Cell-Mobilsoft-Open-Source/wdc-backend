@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>hu.icellmobilsoft.wdc</groupId>
 		<artifactId>wdc-calculator-core</artifactId>
-		<version>1.3.0-SNAPSHOT</version>
+		<version>1.4.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>wdc-calculator-core-dto-jee-10</artifactId>
