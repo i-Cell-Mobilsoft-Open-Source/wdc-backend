@@ -19,7 +19,7 @@ JDK version: 1.11
 = Maven central
 The Workday Calendar can also be found in the official maven repository.
 
-.dependencyManagement beállítások
+.dependencyManagement settings
 [source, xml]
 ----
 <dependency>
