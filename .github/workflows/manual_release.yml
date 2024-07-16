@@ -45,9 +45,9 @@ jobs:
     steps:
       - name: Import GPG key
         env:
-          # GPG private key exported with armor (start: '-----BEGIN PGP PRIVATE KEY BLOCK-----') this is the whole content base64 encoded, inserted as the secrets content
+          # GPG private key exported with armor (starts with: '-----BEGIN PGP PRIVATE KEY BLOCK-----') this is the whole content base64 encoded, inserted as the secrets content
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY_GITHUB_TECHUSER }}
-        # decode the base64 encoded private key and insert it
+        # decode the base64 encoded private key and import it
         run: |
           mkdir -p ~/.gnupg/
           echo "$GPG_SIGNING_KEY" | base64 --decode > ~/.gnupg/private.key
@@ -55,7 +55,7 @@ jobs:
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
-          # The content is a SSH key with PEM format (start with '-----BEGIN RSA PRIVATE KEY-----')
+          # The content is an SSH key with PEM format (starts with '-----BEGIN RSA PRIVATE KEY-----')
           key: ${{ secrets.SSH_PRIVATE_KEY_GITHUB_TECHUSER }}
           name: id_rsa # optional
           known_hosts: ${{ secrets.KNOWN_HOSTS }} # currently empty
