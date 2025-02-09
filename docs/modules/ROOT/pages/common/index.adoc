@@ -2,11 +2,11 @@
 Workday Calendar is a customizable module for workday calculations using in-memory data.
 After initialization, the module provides methods for querying the n-th workday before or after a given start date and querying a list of workdays between two dates.
 
-include::common/installation.adoc[leveloffset=+1]
+include::installation.adoc[leveloffset=+1]
 
-include::common/initialization.adoc[leveloffset=+1]
+include::initialization.adoc[leveloffset=+1]
 
-include::common/usage.adoc[leveloffset=+1]
+include::usage.adoc[leveloffset=+1]
 
-include::common/implementation.adoc[leveloffset=+1]
+include::implementation.adoc[leveloffset=+1]
 
