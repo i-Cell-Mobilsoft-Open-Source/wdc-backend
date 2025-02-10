@@ -1,0 +1,6 @@
+name: wdc-backend
+title: WDC Backend
+version: true
+start_page: index.adoc
+nav:
+  - modules/ROOT/nav.adoc
