@@ -15,7 +15,7 @@
 		<version.junit5>5.5.2</version.junit5>
 		<version.mockito>3.1.0</version.mockito>
 		<version.assertj>3.13.2</version.assertj>
-		<version.commons.lang>3.10</version.commons.lang>
+		<version.commons.lang>3.18.0</version.commons.lang>
 		<version.coffee>1.6.0</version.coffee>
 	</properties>
 
